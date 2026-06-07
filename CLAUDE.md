@@ -64,3 +64,68 @@ Many date/nullable columns come back as `string | null` from Supabase. Guard wit
 ### Supabase Storage
 
 Resume files live in the `resumes` bucket. Files are stored at `{user_id}/{timestamp}.{ext}`. The bucket is public for reads; write/delete is RLS-gated to the owning user.
+
+## Design System
+
+The app uses the **Linear design system** — a near-pure-black canvas with a four-step dark surface ladder, lavender-blue accent, and hairline borders. All tokens are defined in `src/app/globals.css` via Tailwind v4's `@theme` directive.
+
+### Token reference
+
+| Token | Value | Usage |
+|---|---|---|
+| `bg-canvas` | `#010102` | Page background |
+| `bg-surface-1` | `#0f1117` | Cards, panels |
+| `bg-surface-2` | `#1a1d27` | Input fields, nested cards, hover rows |
+| `bg-surface-3` | `#22263a` | Elevated UI inside surface-2 |
+| `bg-surface-4` | `#2a2e45` | Tooltips, popovers |
+| `border-hairline` | `#23252a` | Card borders |
+| `border-hairline-strong` | `#2e3138` | Input borders (default), dividers |
+| `bg-primary` / `text-primary` | `#5e6ad2` | CTA buttons, links, active indicators |
+| `bg-primary-hover` | `#828fff` | Hover state for primary |
+| `text-ink` | `#f7f8f8` | Primary text |
+| `text-ink-muted` | `#d0d6e0` | Secondary text |
+| `text-ink-subtle` | `#8a8f98` | Labels, placeholders |
+| `text-ink-tertiary` | `#62666d` | Timestamps, captions |
+| `text-success` / `bg-success` | `#27a644` | Interview, offer states |
+
+### Input fields
+
+All form inputs use a consistent class string — copy from any existing form rather than reinventing:
+
+```
+w-full rounded-md border border-hairline-strong bg-surface-2 px-3 py-2 text-sm text-ink
+placeholder:text-ink-tertiary focus:outline-none focus:ring-2 focus:ring-primary/40
+focus:border-primary/50 transition-colors
+```
+
+Inputs live on `bg-surface-1` cards, so `bg-surface-2` creates the visual inset. Never use `bg-surface-1` for inputs — they disappear against the card.
+
+### Cards
+
+Standard card shell: `bg-surface-1 rounded-lg border border-hairline`
+
+Card section headers: `px-6 py-4 border-b border-hairline`
+
+Card rows (lists): `px-6 py-4 hover:bg-surface-2 transition-colors`
+
+### Navbar
+
+`src/components/Navbar.tsx` — sticky, `bg-canvas/90 backdrop-blur-md border-b border-hairline`. Active links use `bg-surface-2 text-ink`; inactive use `text-ink-subtle hover:text-ink hover:bg-surface-1`. The notification badge uses `bg-primary` (not red).
+
+### Status badges
+
+`src/components/StatusBadge.tsx` — dark pill style. Key mappings:
+- `interview` / `offer` → `bg-success/15 text-success`
+- `action_required` → `bg-primary/10 text-primary`
+- All others → `bg-surface-2 text-ink-muted` (or `text-ink-tertiary` for rejected/withdrawn)
+
+### Auth pages
+
+Auth pages (`/login`, `/register`) add `.auth-bg` to the outer wrapper for a subtle lavender radial glow. They do **not** use the `(app)` layout (no Navbar).
+
+### Typography
+
+- Page `<h1>`: `text-2xl font-semibold text-ink tracking-[-0.6px]`
+- Auth brand `<h1>`: `text-3xl font-semibold text-ink tracking-[-1.0px]`
+- Card section `<h2>`: `font-medium text-ink tracking-[-0.4px]`
+- Field labels: `text-xs font-medium text-ink-subtle uppercase tracking-wide`
