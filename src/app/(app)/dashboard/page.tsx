@@ -55,17 +55,18 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
-          { label: 'Total',          value: stats.total,          color: 'text-ink' },
-          { label: 'Active',         value: stats.active,         color: 'text-primary' },
-          { label: 'Interviews',     value: stats.interviews,     color: 'text-success' },
-          { label: 'Offers',         value: stats.offers,         color: 'text-success' },
-          { label: 'Action Required',value: stats.actionRequired, color: 'text-primary' },
+          { label: 'Total',           value: stats.total,          color: 'text-ink',    accent: 'bg-hairline-strong' },
+          { label: 'Active',          value: stats.active,         color: 'text-primary', accent: 'bg-primary/40' },
+          { label: 'Interviews',      value: stats.interviews,     color: 'text-success', accent: 'bg-success/40' },
+          { label: 'Offers',          value: stats.offers,         color: 'text-success', accent: 'bg-success/40' },
+          { label: 'Action Required', value: stats.actionRequired, color: 'text-primary', accent: 'bg-primary/40' },
         ].map(stat => (
-          <div key={stat.label} className="bg-surface-1 rounded-lg border border-hairline p-4">
-            <p className="text-xs text-ink-subtle font-medium">{stat.label}</p>
-            <p className={`text-2xl font-semibold mt-1 ${stat.color}`}>{stat.value}</p>
+          <div key={stat.label} className="bg-surface-1 rounded-lg border border-hairline p-4 relative overflow-hidden">
+            <div className={`absolute top-0 left-0 right-0 h-px ${stat.accent}`} />
+            <p className="text-xs text-ink-subtle font-medium leading-none">{stat.label}</p>
+            <p className={`text-2xl font-semibold mt-2 tabular-nums ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
@@ -80,9 +81,16 @@ export default async function DashboardPage() {
         </div>
         {sorted.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-ink-subtle text-sm">No applications yet</p>
-            <Link href="/applications/new" className="mt-3 inline-block text-sm text-primary hover:text-primary-hover transition-colors">
-              Add your first application
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface-2 border border-hairline mb-4">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-ink-tertiary">
+                <rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M6 9h6M9 6v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <p className="text-ink-subtle text-sm font-medium">No applications yet</p>
+            <p className="text-ink-tertiary text-xs mt-1">Start tracking your job search</p>
+            <Link href="/applications/new" className="mt-4 inline-flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium px-4 py-2 rounded-md transition-colors">
+              Add first application
             </Link>
           </div>
         ) : (

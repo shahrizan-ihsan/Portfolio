@@ -37,26 +37,39 @@ export default function Navbar() {
     router.refresh()
   }
 
+  function isActive(href: string) {
+    if (href === '/applications') return pathname === '/applications' || pathname.startsWith('/applications/')
+    return pathname.startsWith(href)
+  }
+
   return (
-    <nav className="bg-canvas border-b border-hairline sticky top-0 z-30">
+    <nav className="bg-canvas/90 backdrop-blur-md border-b border-hairline sticky top-0 z-30">
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
-        <Link href="/dashboard" className="font-semibold text-primary text-base tracking-tight">
+        <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-ink text-base tracking-tight">
+          <span className="w-6 h-6 rounded-md bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-primary">
+              <rect x="1" y="1.5" width="5" height="6.5" rx="1" fill="currentColor" opacity="0.9"/>
+              <rect x="8" y="1.5" width="5" height="3.5" rx="1" fill="currentColor" opacity="0.5"/>
+              <rect x="8" y="7" width="5" height="5.5" rx="1" fill="currentColor" opacity="0.7"/>
+              <rect x="1" y="10" width="5" height="3" rx="1" fill="currentColor" opacity="0.5"/>
+            </svg>
+          </span>
           JobTrack
         </Link>
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-0.5">
           {navItems.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               className={`relative px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                pathname.startsWith(href)
+                isActive(href)
                   ? 'bg-surface-2 text-ink'
-                  : 'text-ink-subtle hover:text-ink'
+                  : 'text-ink-subtle hover:text-ink hover:bg-surface-1'
               }`}
             >
               {label}
               {href === '/notifications' && unread > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium leading-none">
                   {unread > 9 ? '9+' : unread}
                 </span>
               )}
@@ -65,7 +78,7 @@ export default function Navbar() {
         </div>
         <button
           onClick={handleSignOut}
-          className="text-sm text-ink-subtle hover:text-ink transition-colors"
+          className="text-sm text-ink-tertiary hover:text-ink-subtle transition-colors"
         >
           Sign out
         </button>

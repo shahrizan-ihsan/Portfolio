@@ -5,7 +5,7 @@ import type { Profile } from '@/types/database'
 
 const EXPERIENCE_LEVELS = ['entry', 'mid', 'senior', 'executive']
 
-const inputCls = 'w-full rounded-md border border-hairline bg-surface-1 px-3 py-2 text-sm text-ink placeholder:text-ink-tertiary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-hairline-strong'
+const inputCls = 'w-full rounded-md border border-hairline-strong bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-ink-tertiary focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-colors'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Partial<Profile>>({})
@@ -89,7 +89,7 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium text-ink-subtle mb-1">Email</label>
             <input
               type="email" value={email} disabled
-              className="w-full rounded-md border border-hairline bg-surface-2 px-3 py-2 text-sm text-ink-tertiary cursor-not-allowed"
+              className="w-full rounded-md border border-hairline bg-surface-2 px-3 py-2 text-sm text-ink-tertiary cursor-not-allowed opacity-60"
             />
           </div>
         </div>

@@ -72,10 +72,19 @@ export default async function ApplicationsPage({
       <div className="bg-surface-1 rounded-lg border border-hairline overflow-hidden">
         {applications.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-ink-subtle text-sm">No applications found</p>
-            <Link href="/applications/new" className="mt-3 inline-block text-sm text-primary hover:text-primary-hover transition-colors">
-              Add your first application
-            </Link>
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface-2 border border-hairline mb-4">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-ink-tertiary">
+                <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 3 13.5v-9Z" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M6 9h6M9 6v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <p className="text-ink-subtle text-sm font-medium">{status ? `No ${status.replace('_', ' ')} applications` : 'No applications yet'}</p>
+            {!status && <p className="text-ink-tertiary text-xs mt-1">Start logging your applications</p>}
+            {!status && (
+              <Link href="/applications/new" className="mt-4 inline-flex items-center gap-1.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium px-4 py-2 rounded-md transition-colors">
+                Add application
+              </Link>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-hairline">

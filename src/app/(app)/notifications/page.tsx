@@ -60,7 +60,16 @@ export default function NotificationsPage() {
         {loading ? (
           <div className="py-12 text-center text-sm text-ink-subtle">Loading…</div>
         ) : notifications.length === 0 ? (
-          <div className="py-12 text-center text-sm text-ink-subtle">No notifications yet</div>
+          <div className="py-12 text-center">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-surface-2 border border-hairline mb-3">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-ink-tertiary">
+                <path d="M9 2a5 5 0 0 1 5 5v2l1.5 2.5H2.5L4 9V7a5 5 0 0 1 5-5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                <path d="M7 14.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <p className="text-sm text-ink-subtle font-medium">All caught up</p>
+            <p className="text-xs text-ink-tertiary mt-0.5">No notifications yet</p>
+          </div>
         ) : (
           <div className="divide-y divide-hairline">
             {notifications.map(n => (
