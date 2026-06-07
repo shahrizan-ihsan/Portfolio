@@ -41,14 +41,14 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-semibold text-ink tracking-[-0.6px]">
             Welcome back{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}
           </h1>
-          <p className="text-gray-500 text-sm mt-0.5">Here&apos;s your job search overview</p>
+          <p className="text-ink-subtle text-sm mt-0.5">Here&apos;s your job search overview</p>
         </div>
         <Link
           href="/applications/new"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
         >
           + Add Application
         </Link>
@@ -57,59 +57,61 @@ export default async function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
-          { label: 'Total', value: stats.total, color: 'text-gray-900' },
-          { label: 'Active', value: stats.active, color: 'text-indigo-600' },
-          { label: 'Interviews', value: stats.interviews, color: 'text-green-600' },
-          { label: 'Offers', value: stats.offers, color: 'text-emerald-600' },
-          { label: 'Action Required', value: stats.actionRequired, color: 'text-amber-600' },
+          { label: 'Total',          value: stats.total,          color: 'text-ink' },
+          { label: 'Active',         value: stats.active,         color: 'text-primary' },
+          { label: 'Interviews',     value: stats.interviews,     color: 'text-success' },
+          { label: 'Offers',         value: stats.offers,         color: 'text-success' },
+          { label: 'Action Required',value: stats.actionRequired, color: 'text-primary' },
         ].map(stat => (
-          <div key={stat.label} className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
+          <div key={stat.label} className="bg-surface-1 rounded-lg border border-hairline p-4">
+            <p className="text-xs text-ink-subtle font-medium">{stat.label}</p>
+            <p className={`text-2xl font-semibold mt-1 ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>
 
       {/* Application list */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900">Applications</h2>
-          <Link href="/applications" className="text-sm text-indigo-600 hover:underline">View all</Link>
+      <div className="bg-surface-1 rounded-lg border border-hairline overflow-hidden">
+        <div className="px-6 py-4 border-b border-hairline flex items-center justify-between">
+          <h2 className="font-medium text-ink tracking-[-0.4px]">Applications</h2>
+          <Link href="/applications" className="text-sm text-primary hover:text-primary-hover transition-colors">
+            View all
+          </Link>
         </div>
         {sorted.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-gray-400 text-sm">No applications yet</p>
-            <Link href="/applications/new" className="mt-3 inline-block text-sm text-indigo-600 hover:underline">
+            <p className="text-ink-subtle text-sm">No applications yet</p>
+            <Link href="/applications/new" className="mt-3 inline-block text-sm text-primary hover:text-primary-hover transition-colors">
               Add your first application
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-hairline">
             {sorted.slice(0, 10).map(app => (
               <Link
                 key={app.id}
                 href={`/applications/${app.id}`}
-                className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between px-6 py-4 hover:bg-surface-2 transition-colors"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-gray-900 truncate">{app.role_title}</p>
+                    <p className="font-medium text-ink truncate">{app.role_title}</p>
                     {app.action_required && (
-                      <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">
+                      <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
                         Action needed
                       </span>
                     )}
                     {isOverdue(app) && !['rejected','withdrawn','offer'].includes(app.status) && (
-                      <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">
+                      <span className="text-xs bg-surface-2 text-ink-subtle px-1.5 py-0.5 rounded font-medium">
                         Overdue
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 truncate">{app.employer_name}</p>
+                  <p className="text-sm text-ink-subtle truncate">{app.employer_name}</p>
                 </div>
                 <div className="flex items-center gap-4 ml-4 shrink-0">
                   <StatusBadge status={(app.status as ApplicationStatus)} />
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-ink-tertiary">
                     {app.applied_date
                       ? new Date(app.applied_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
                       : '—'}

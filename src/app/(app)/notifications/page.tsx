@@ -41,43 +41,43 @@ export default function NotificationsPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+          <h1 className="text-2xl font-semibold text-ink tracking-[-0.6px]">Notifications</h1>
           {unreadCount > 0 && (
-            <p className="text-sm text-gray-500 mt-0.5">{unreadCount} unread</p>
+            <p className="text-sm text-ink-subtle mt-0.5">{unreadCount} unread</p>
           )}
         </div>
         {unreadCount > 0 && (
           <button
             onClick={markAllRead}
-            className="text-sm text-indigo-600 hover:underline"
+            className="text-sm text-primary hover:text-primary-hover transition-colors"
           >
             Mark all as read
           </button>
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-surface-1 rounded-lg border border-hairline overflow-hidden">
         {loading ? (
-          <div className="py-12 text-center text-sm text-gray-400">Loading…</div>
+          <div className="py-12 text-center text-sm text-ink-subtle">Loading…</div>
         ) : notifications.length === 0 ? (
-          <div className="py-12 text-center text-sm text-gray-400">No notifications yet</div>
+          <div className="py-12 text-center text-sm text-ink-subtle">No notifications yet</div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-hairline">
             {notifications.map(n => (
               <div
                 key={n.id}
-                className={`flex items-start gap-3 px-6 py-4 ${!n.is_read ? 'bg-indigo-50/50' : ''}`}
+                className={`flex items-start gap-3 px-6 py-4 ${!n.is_read ? 'bg-surface-2/50' : ''}`}
               >
                 <div
-                  className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${!n.is_read ? 'bg-indigo-500' : 'bg-gray-200'}`}
+                  className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${!n.is_read ? 'bg-primary' : 'bg-hairline-strong'}`}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${!n.is_read ? 'text-gray-900' : 'text-gray-600'}`}>
+                  <p className={`text-sm font-medium ${!n.is_read ? 'text-ink' : 'text-ink-subtle'}`}>
                     {n.title}
                   </p>
-                  <p className="text-sm text-gray-500 mt-0.5">{n.message}</p>
+                  <p className="text-sm text-ink-subtle mt-0.5">{n.message}</p>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-ink-tertiary">
                       {n.created_at ? new Date(n.created_at).toLocaleDateString('en-GB', {
                         day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                       }) : ''}
@@ -85,7 +85,7 @@ export default function NotificationsPage() {
                     {n.related_application_id && (
                       <Link
                         href={`/applications/${n.related_application_id}`}
-                        className="text-xs text-indigo-600 hover:underline"
+                        className="text-xs text-primary hover:text-primary-hover transition-colors"
                       >
                         View application →
                       </Link>
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
                 {!n.is_read && (
                   <button
                     onClick={() => markRead(n.id)}
-                    className="text-xs text-gray-400 hover:text-gray-700 shrink-0"
+                    className="text-xs text-ink-tertiary hover:text-ink-subtle shrink-0 transition-colors"
                   >
                     Mark read
                   </button>

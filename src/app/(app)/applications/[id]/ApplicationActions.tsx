@@ -9,6 +9,8 @@ const STATUSES: ApplicationStatus[] = [
   'action_required','interview','rejected','offer','withdrawn',
 ]
 
+const inputCls = 'w-full rounded-md border border-hairline bg-surface-2 px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-hairline-strong'
+
 export default function ApplicationActions({ application }: { application: Application }) {
   const router = useRouter()
   const [status, setStatus] = useState<ApplicationStatus>((application.status as ApplicationStatus) ?? 'submitted')
@@ -46,15 +48,15 @@ export default function ApplicationActions({ application }: { application: Appli
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-      <h2 className="font-semibold text-gray-900">Update Status</h2>
+    <div className="bg-surface-1 rounded-lg border border-hairline p-6 space-y-4">
+      <h2 className="font-medium text-ink tracking-[-0.4px]">Update Status</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+          <label className="block text-xs font-medium text-ink-subtle mb-1">Status</label>
           <select
             value={status}
             onChange={e => setStatus(e.target.value as ApplicationStatus)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className={inputCls}
           >
             {STATUSES.map(s => (
               <option key={s} value={s}>{s.replace('_', ' ').replace(/^\w/, c => c.toUpperCase())}</option>
@@ -62,32 +64,32 @@ export default function ApplicationActions({ application }: { application: Appli
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Expect update by</label>
+          <label className="block text-xs font-medium text-ink-subtle mb-1">Expect update by</label>
           <input
             type="date" value={expectedDate} onChange={e => setExpectedDate(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className={inputCls}
           />
         </div>
         <div className="flex items-end">
           <label className="flex items-center gap-2 cursor-pointer pb-2">
             <input
               type="checkbox" checked={actionRequired} onChange={e => setActionRequired(e.target.checked)}
-              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              className="rounded border-hairline bg-surface-2 text-primary focus:ring-primary/50"
             />
-            <span className="text-sm text-gray-700">Action required</span>
+            <span className="text-sm text-ink-muted">Action required</span>
           </label>
         </div>
       </div>
       <div className="flex gap-3">
         <button
           onClick={handleUpdate} disabled={saving}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save Changes'}
         </button>
         <button
           onClick={handleDelete} disabled={deleting}
-          className="px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors disabled:opacity-50"
+          className="px-4 py-2 rounded-md border border-hairline text-ink-subtle hover:border-red-400 hover:text-red-400 text-sm font-medium transition-colors disabled:opacity-50"
         >
           {deleting ? 'Deleting…' : 'Delete'}
         </button>

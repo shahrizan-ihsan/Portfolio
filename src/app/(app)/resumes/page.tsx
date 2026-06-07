@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Resume } from '@/types/database'
 
+const inputCls = 'w-full rounded-md border border-hairline bg-surface-1 px-3 py-2 text-sm text-ink placeholder:text-ink-tertiary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-hairline-strong'
+
 export default function ResumesPage() {
   const [resumes, setResumes] = useState<Resume[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,69 +64,68 @@ export default function ResumesPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Resumes</h1>
-        <p className="text-sm text-gray-500 mt-1">Upload and manage your resumes</p>
+        <h1 className="text-2xl font-semibold text-ink tracking-[-0.6px]">Resumes</h1>
+        <p className="text-sm text-ink-subtle mt-1">Upload and manage your resumes</p>
       </div>
 
       {/* Upload form */}
-      <form onSubmit={handleUpload} className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-        <h2 className="font-semibold text-gray-900">Upload Resume</h2>
+      <form onSubmit={handleUpload} className="bg-surface-1 rounded-lg border border-hairline p-6 space-y-4">
+        <h2 className="font-medium text-ink tracking-[-0.4px]">Upload Resume</h2>
         {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>
+          <div className="rounded-md bg-surface-2 border border-hairline p-3 text-sm text-ink-muted">{error}</div>
         )}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Label</label>
+          <label className="block text-sm font-medium text-ink-subtle mb-1">Label</label>
           <input
             type="text" required value={label} onChange={e => setLabel(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="e.g. Software Engineer CV 2025"
+            className={inputCls} placeholder="e.g. Software Engineer CV 2025"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">File (PDF, DOC, DOCX)</label>
+          <label className="block text-sm font-medium text-ink-subtle mb-1">File (PDF, DOC, DOCX)</label>
           <input
             type="file" required accept=".pdf,.doc,.docx"
             onChange={e => setFile(e.target.files?.[0] ?? null)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-700 file:text-sm file:font-medium"
+            className="w-full rounded-md border border-hairline bg-surface-1 px-3 py-2 text-sm text-ink focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-surface-2 file:text-ink-muted file:text-sm file:font-medium"
           />
         </div>
         <button
           type="submit" disabled={uploading || !file}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+          className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50"
         >
           {uploading ? 'Uploading…' : 'Upload Resume'}
         </button>
       </form>
 
       {/* Resume list */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">Your Resumes</h2>
+      <div className="bg-surface-1 rounded-lg border border-hairline overflow-hidden">
+        <div className="px-6 py-4 border-b border-hairline">
+          <h2 className="font-medium text-ink tracking-[-0.4px]">Your Resumes</h2>
         </div>
         {loading ? (
-          <div className="py-12 text-center text-sm text-gray-400">Loading…</div>
+          <div className="py-12 text-center text-sm text-ink-subtle">Loading…</div>
         ) : resumes.length === 0 ? (
-          <div className="py-12 text-center text-sm text-gray-400">No resumes uploaded yet</div>
+          <div className="py-12 text-center text-sm text-ink-subtle">No resumes uploaded yet</div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-hairline">
             {resumes.map(r => (
               <div key={r.id} className="flex items-center justify-between px-6 py-4">
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">{r.label}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="font-medium text-ink text-sm">{r.label}</p>
+                  <p className="text-xs text-ink-tertiary mt-0.5">
                     {r.file_name} · Uploaded {r.uploaded_at ? new Date(r.uploaded_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <a
                     href={r.file_url} target="_blank" rel="noopener noreferrer"
-                    className="text-sm text-indigo-600 hover:underline"
+                    className="text-sm text-primary hover:text-primary-hover transition-colors"
                   >
                     View
                   </a>
                   <button
                     onClick={() => handleDelete(r)}
-                    className="text-sm text-red-500 hover:text-red-700 transition-colors"
+                    className="text-sm text-ink-subtle hover:text-red-400 transition-colors"
                   >
                     Delete
                   </button>

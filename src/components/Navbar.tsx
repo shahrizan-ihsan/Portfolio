@@ -38,9 +38,11 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-30">
+    <nav className="bg-canvas border-b border-hairline sticky top-0 z-30">
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
-        <Link href="/dashboard" className="font-bold text-indigo-600 text-lg">JobTrack</Link>
+        <Link href="/dashboard" className="font-semibold text-primary text-base tracking-tight">
+          JobTrack
+        </Link>
         <div className="hidden md:flex items-center gap-1">
           {navItems.map(({ href, label }) => (
             <Link
@@ -48,8 +50,8 @@ export default function Navbar() {
               href={href}
               className={`relative px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 pathname.startsWith(href)
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-surface-2 text-ink'
+                  : 'text-ink-subtle hover:text-ink'
               }`}
             >
               {label}
@@ -63,7 +65,7 @@ export default function Navbar() {
         </div>
         <button
           onClick={handleSignOut}
-          className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+          className="text-sm text-ink-subtle hover:text-ink transition-colors"
         >
           Sign out
         </button>
