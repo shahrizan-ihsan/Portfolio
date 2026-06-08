@@ -65,6 +65,16 @@ Many date/nullable columns come back as `string | null` from Supabase. Guard wit
 
 Resume files live in the `resumes` bucket. Files are stored at `{user_id}/{timestamp}.{ext}`. The bucket is public for reads; write/delete is RLS-gated to the owning user.
 
+## Hooks
+
+A `PostToolUse` hook fires after every Bash command. It is defined in `.claude/settings.json` and implemented in `.claude/hooks/auto-update-claude-md.sh`.
+
+**What it does:** After a `git commit`, it injects context into the current Claude turn listing the commit message, changed files, and diff summary, then asks Claude to update this file if the commit introduced anything worth documenting. Silent no-op for all non-commit commands.
+
+**Update triggers:** new pages/routes, new components, new architecture or data-fetching patterns, new design tokens, new API endpoints or schema changes, new development workflow steps.
+
+**Not updated for:** bug fixes, minor style tweaks, dependency bumps, or things already documented here.
+
 ## Design System
 
 The app uses the **Linear design system** — a near-pure-black canvas with a four-step dark surface ladder, lavender-blue accent, and hairline borders. All tokens are defined in `src/app/globals.css` via Tailwind v4's `@theme` directive.
