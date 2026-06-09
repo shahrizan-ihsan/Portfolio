@@ -5,404 +5,477 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IT Support Dashboard</title>
 <style>
-  :root {
-    --bg: #0f1117;
-    --card: #1a1d27;
-    --border: #2a2d3a;
-    --text: #e2e8f0;
-    --muted: #8892a4;
-    --green: #22c55e;
-    --yellow: #f59e0b;
-    --red: #ef4444;
-    --blue: #3b82f6;
-    --purple: #a855f7;
-    --accent: #3b82f6;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+:root {
+  --bg:#0f1117; --card:#1a1d27; --border:#2a2d3a; --text:#e2e8f0; --muted:#8892a4;
+  --green:#22c55e; --yellow:#f59e0b; --red:#ef4444; --blue:#3b82f6; --purple:#a855f7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-  /* Header */
-  .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-  .header h1 { font-size: 18px; font-weight: 700; color: var(--blue); }
-  .header .meta { color: var(--muted); font-size: 12px; }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* ── Header ── */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.header h1{font-size:17px;font-weight:700;color:var(--blue)}
+.header .meta{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* Layout */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
-  .col-wide { grid-column: span 2; }
-  @media(max-width:700px){ .col-wide { grid-column: span 1; } }
+/* ── Tab bar ── */
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{padding:10px 20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-  /* Cards */
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
-  .card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
-  .card-title .icon { font-size: 14px; }
+/* ── Main layout ── */
+.view{display:none;flex:1;overflow:hidden}
+.view.active{display:flex}
 
-  /* Stat row */
-  .stat-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
-  .stat-row:last-child { border-bottom: none; }
-  .stat-label { color: var(--muted); }
-  .stat-val { font-weight: 600; font-size: 15px; }
+/* ── Dashboard grid ── */
+.dash-view{overflow-y:auto;flex:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;padding:18px;max-width:1400px;margin:0 auto}
+.col-wide{grid-column:span 2}
+@media(max-width:650px){.col-wide{grid-column:span 1}}
 
-  /* Gauge bars */
-  .gauge-wrap { margin-bottom: 12px; }
-  .gauge-header { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
-  .gauge-track { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .gauge-fill { height: 100%; border-radius: 99px; transition: width .6s ease; }
-  .gauge-ok   { background: var(--green); }
-  .gauge-warn { background: var(--yellow); }
-  .gauge-crit { background: var(--red); }
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px}
 
-  /* Alerts */
-  .alert { padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; display: flex; align-items: flex-start; gap: 8px; }
-  .alert-ok   { background: #14532d22; border: 1px solid #16a34a44; color: var(--green); }
-  .alert-warn { background: #78350f22; border: 1px solid #d9770644; color: var(--yellow); }
-  .alert-crit { background: #7f1d1d22; border: 1px solid #dc262644; color: var(--red); }
-  .alert-info { background: #1e3a5f22; border: 1px solid #3b82f644; color: var(--blue); }
+/* ── Stat rows ── */
+.row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row-label{color:var(--muted);font-size:13px}
+.row-val{font-weight:600}
 
-  /* Process table */
-  .proc-table { width: 100%; border-collapse: collapse; }
-  .proc-table th { color: var(--muted); font-size: 11px; font-weight: 600; text-align: left; padding: 4px 6px; text-transform: uppercase; }
-  .proc-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .proc-table tr:last-child td { border-bottom: none; }
-  .proc-name { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .badge { display: inline-block; padding: 2px 7px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-  .badge-ok   { background: #14532d33; color: var(--green); }
-  .badge-warn { background: #78350f33; color: var(--yellow); }
-  .badge-crit { background: #7f1d1d33; color: var(--red); }
+/* ── Gauges ── */
+.g-wrap{margin-bottom:11px}
+.g-head{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
+.g-track{height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.g-fill{height:100%;border-radius:99px;transition:width .7s ease}
+.ok{background:var(--green)} .warn{background:var(--yellow)} .crit{background:var(--red)}
+.tok{color:var(--green)} .twarn{color:var(--yellow)} .tcrit{color:var(--red)} .tmuted{color:var(--muted)} .tblue{color:var(--blue)}
 
-  /* Network */
-  .conn-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-  .conn-row:last-child { border-bottom: none; }
-  .conn-process { color: var(--blue); font-weight: 600; }
-  .conn-addr { color: var(--muted); font-family: monospace; }
+/* ── Alerts ── */
+.alert{padding:7px 11px;border-radius:7px;margin-bottom:7px;font-size:13px;line-height:1.4}
+.a-ok{background:#14532d22;border:1px solid #16a34a44;color:var(--green)}
+.a-warn{background:#78350f22;border:1px solid #d9770644;color:var(--yellow)}
+.a-crit{background:#7f1d1d22;border:1px solid #dc262644;color:var(--red)}
+.a-info{background:#1e3a5f22;border:1px solid #3b82f644;color:var(--blue)}
 
-  /* Quick action buttons */
-  .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .btn { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--border); color: var(--text); cursor: pointer; font-size: 13px; font-weight: 500; transition: all .2s; text-align: center; }
-  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn-result { margin-top: 10px; font-size: 12px; padding: 8px 10px; border-radius: 6px; display: none; }
+/* ── Process table ── */
+.ptable{width:100%;border-collapse:collapse}
+.ptable th{color:var(--muted);font-size:11px;text-align:left;padding:3px 5px;text-transform:uppercase}
+.ptable td{padding:4px 5px;border-bottom:1px solid var(--border);font-size:13px}
+.ptable tr:last-child td{border-bottom:none}
+.pname{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-block;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600}
+.b-ok{background:#14532d33;color:var(--green)} .b-warn{background:#78350f33;color:var(--yellow)} .b-crit{background:#7f1d1d33;color:var(--red)}
 
-  /* Disk */
-  .disk-item { margin-bottom: 14px; }
-  .disk-item:last-child { margin-bottom: 0; }
+/* ── Network ── */
+.nrow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
+.nrow:last-child{border-bottom:none}
 
-  /* Security */
-  .sec-summary { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+/* ── Quick action buttons ── */
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.btn{padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--border);color:var(--text);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+.btn:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.fix-result{margin-top:9px;font-size:12px;padding:7px 10px;border-radius:6px;display:none}
 
-  /* Spinner */
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* ── Skeleton ── */
+.sk{background:linear-gradient(90deg,var(--border) 25%,#2f3347 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:5px;height:13px;margin-bottom:7px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-  /* Loading skeleton */
-  .skeleton { background: linear-gradient(90deg, var(--border) 25%, #2f3347 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; height: 14px; margin-bottom: 8px; }
-  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-  .tag-ok   { color: var(--green); }
-  .tag-warn { color: var(--yellow); }
-  .tag-crit { color: var(--red); }
-  .tag-info { color: var(--blue); }
-  .tag-muted { color: var(--muted); }
+/* ── Chat view ── */
+.chat-view{flex-direction:column;flex:1;overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:78%;line-height:1.55}
+.msg-user{align-self:flex-end;background:var(--blue);color:#fff;padding:10px 14px;border-radius:14px 14px 3px 14px;font-size:14px}
+.msg-agent{align-self:flex-start;background:var(--card);border:1px solid var(--border);padding:12px 15px;border-radius:3px 14px 14px 14px;font-size:14px;max-width:85%}
+.msg-agent h1,.msg-agent h2,.msg-agent h3{margin:8px 0 4px;color:var(--blue);font-size:15px}
+.msg-agent ul,.msg-agent ol{padding-left:18px;margin:4px 0}
+.msg-agent li{margin:2px 0}
+.msg-agent code{background:#ffffff15;padding:1px 5px;border-radius:4px;font-family:monospace;font-size:12px}
+.msg-agent pre{background:#ffffff10;padding:10px;border-radius:7px;overflow-x:auto;font-family:monospace;font-size:12px;margin:6px 0}
+.msg-agent strong{color:#fff}
+.msg-agent table{border-collapse:collapse;width:100%;margin:6px 0;font-size:13px}
+.msg-agent th{background:#ffffff10;padding:5px 8px;text-align:left;color:var(--muted)}
+.msg-agent td{padding:4px 8px;border-bottom:1px solid var(--border)}
+.tool-indicator{align-self:flex-start;font-size:12px;color:var(--muted);padding:4px 10px;background:var(--card);border:1px solid var(--border);border-radius:99px;display:flex;align-items:center;gap:6px}
+.spinner{width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chat-input-bar{padding:14px 18px;background:var(--card);border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0}
+.chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 14px;color:var(--text);font-size:14px;resize:none;outline:none;font-family:inherit;line-height:1.4;max-height:120px;overflow-y:auto}
+.chat-input:focus{border-color:var(--blue)}
+.send-btn{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 18px;cursor:pointer;font-size:14px;font-weight:600;transition:opacity .2s;white-space:nowrap}
+.send-btn:hover{opacity:.85}
+.send-btn:disabled{opacity:.4;cursor:not-allowed}
+.quick-prompts{padding:0 18px 10px;display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.qp{background:var(--card);border:1px solid var(--border);border-radius:99px;padding:5px 13px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .2s;white-space:nowrap}
+.qp:hover{border-color:var(--blue);color:var(--blue)}
+.welcome{text-align:center;margin:auto;padding:30px;color:var(--muted)}
+.welcome h2{color:var(--text);margin-bottom:8px;font-size:18px}
+.welcome p{margin-bottom:16px;font-size:14px}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>🖥️ IT Support Dashboard</h1>
+  <h1>🖥️ IT Support Agent</h1>
   <div class="meta">
-    <span class="status-dot"></span>
+    <span><span class="dot"></span> Live</span>
     <span id="last-updated">Loading…</span>
   </div>
 </div>
 
-<div class="grid" id="main-grid">
+<!-- Tab bar -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+  <div class="tab" onclick="switchTab('chat')">💬 Chat with Agent</div>
+</div>
 
-  <!-- System Health -->
-  <div class="card" id="card-system">
-    <div class="card-title"><span class="icon">💻</span> System Health</div>
-    <div id="system-content"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+<!-- ── DASHBOARD VIEW ── -->
+<div class="view dash-view active" id="view-dashboard">
+<div class="dash-view">
+<div class="grid">
+
+  <div class="card">
+    <div class="card-title"><span>💻</span> System</div>
+    <div id="sys-info"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   </div>
 
-  <!-- CPU / RAM Gauges -->
-  <div class="card" id="card-gauges">
-    <div class="card-title"><span class="icon">📊</span> Resource Usage</div>
-    <div id="gauges-content"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+  <div class="card">
+    <div class="card-title"><span>📊</span> Resource Usage</div>
+    <div id="gauges"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   </div>
 
-  <!-- Battery & Uptime -->
-  <div class="card" id="card-misc">
-    <div class="card-title"><span class="icon">🔋</span> Battery & Uptime</div>
-    <div id="misc-content"><div class="skeleton"></div><div class="skeleton"></div></div>
+  <div class="card">
+    <div class="card-title"><span>🔋</span> Battery & Uptime</div>
+    <div id="battery"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
-  <!-- Alerts -->
-  <div class="card" id="card-alerts">
-    <div class="card-title"><span class="icon">🚨</span> Alerts</div>
-    <div id="alerts-content"><div class="skeleton"></div></div>
+  <div class="card">
+    <div class="card-title"><span>🚨</span> Alerts</div>
+    <div id="alerts"><div class="sk"></div></div>
   </div>
 
-  <!-- Storage -->
-  <div class="card" id="card-storage">
-    <div class="card-title"><span class="icon">💾</span> Storage</div>
-    <div id="storage-content"><div class="skeleton"></div><div class="skeleton"></div></div>
+  <div class="card">
+    <div class="card-title"><span>💾</span> Storage</div>
+    <div id="storage"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
-  <!-- Security -->
-  <div class="card" id="card-security">
-    <div class="card-title"><span class="icon">🛡️</span> Security</div>
-    <div id="security-content"><div class="skeleton"></div></div>
+  <div class="card">
+    <div class="card-title"><span>🛡️</span> Security</div>
+    <div id="security"><div class="sk"></div></div>
   </div>
 
-  <!-- Network -->
-  <div class="card col-wide" id="card-network">
-    <div class="card-title"><span class="icon">🌐</span> Network Connections</div>
-    <div id="network-content"><div class="skeleton"></div><div class="skeleton"></div></div>
+  <div class="card col-wide">
+    <div class="card-title"><span>🌐</span> Network</div>
+    <div id="network"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
-  <!-- Top Processes -->
-  <div class="card col-wide" id="card-processes">
-    <div class="card-title"><span class="icon">⚙️</span> Top Processes</div>
-    <div id="processes-content"><div class="skeleton"></div><div class="skeleton"></div></div>
+  <div class="card col-wide">
+    <div class="card-title"><span>⚙️</span> Top Processes</div>
+    <div id="processes"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
-  <!-- Quick Actions -->
-  <div class="card" id="card-actions">
-    <div class="card-title"><span class="icon">🔧</span> Quick Actions</div>
+  <div class="card">
+    <div class="card-title"><span>🔧</span> Quick Fixes</div>
     <div class="btn-grid">
-      <button class="btn" onclick="runFix('clear_temp')">🗑️ Clear Temp Files</button>
-      <button class="btn" onclick="runFix('clear_cache')">🧹 Clear Cache</button>
-      <button class="btn" onclick="runFix('fix_permissions')">🔑 Fix Permissions</button>
-      <button class="btn" onclick="runFix('free_memory')">🧠 Free Memory</button>
+      <button class="btn" onclick="fix('clear_temp')">🗑️ Clear Temp</button>
+      <button class="btn" onclick="fix('clear_cache')">🧹 Clear Cache</button>
+      <button class="btn" onclick="fix('fix_permissions')">🔑 Fix Permissions</button>
+      <button class="btn" onclick="fix('free_memory')">🧠 Free Memory</button>
     </div>
-    <div class="btn-result alert" id="fix-result"></div>
+    <div class="fix-result alert" id="fix-result"></div>
   </div>
 
 </div>
+</div>
+</div>
+
+<!-- ── CHAT VIEW ── -->
+<div class="view chat-view" id="view-chat">
+  <div class="chat-messages" id="chat-messages">
+    <div class="welcome">
+      <h2>👋 IT Support Agent</h2>
+      <p>Ask me anything about your laptop — I'll run real diagnostics and give you specific answers.</p>
+    </div>
+  </div>
+  <div class="quick-prompts">
+    <span class="qp" onclick="sendQuick(this)">🔍 Check system health</span>
+    <span class="qp" onclick="sendQuick(this)">🛡️ Scan for malware</span>
+    <span class="qp" onclick="sendQuick(this)">💾 How's my storage?</span>
+    <span class="qp" onclick="sendQuick(this)">🔄 Check for updates</span>
+    <span class="qp" onclick="sendQuick(this)">🐢 Why is my laptop slow?</span>
+    <span class="qp" onclick="sendQuick(this)">📋 Show recent errors</span>
+    <span class="qp" onclick="sendQuick(this)">🌐 Check network</span>
+    <span class="qp" onclick="sendQuick(this)">🔋 Check battery health</span>
+  </div>
+  <div class="chat-input-bar">
+    <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask about your laptop… (Enter to send, Shift+Enter for new line)"></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">Send ➤</button>
+  </div>
+</div>
 
 <script>
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function gauge(label, pct, unit) {
-  const cls = pct > 90 ? 'crit' : pct > 75 ? 'warn' : 'ok';
-  const tag  = pct > 90 ? 'tag-crit' : pct > 75 ? 'tag-warn' : 'tag-ok';
-  return `<div class="gauge-wrap">
-    <div class="gauge-header"><span>${label}</span><span class="${tag}">${pct}${unit}</span></div>
-    <div class="gauge-track"><div class="gauge-fill gauge-${cls}" style="width:${Math.min(pct,100)}%"></div></div>
-  </div>`;
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === (name==='chat'?1:0)));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
 }
 
-function badge(val, warn, crit) {
-  const cls = val >= crit ? 'crit' : val >= warn ? 'warn' : 'ok';
-  return `<span class="badge badge-${cls}">${val}%</span>`;
-}
+// ── Dashboard helpers ─────────────────────────────────────────────────────────
+const gauge = (label, pct, unit='%') => {
+  const c = pct>90?'crit':pct>75?'warn':'ok', tc = pct>90?'tcrit':pct>75?'twarn':'tok';
+  return `<div class="g-wrap"><div class="g-head"><span>${label}</span><span class="${tc}">${pct}${unit}</span></div>
+  <div class="g-track"><div class="g-fill ${c}" style="width:${Math.min(pct,100)}%"></div></div></div>`;
+};
+const row = (l,v) => `<div class="row"><span class="row-label">${l}</span><span class="row-val">${v}</span></div>`;
 
-function statRow(label, val) {
-  return `<div class="stat-row"><span class="stat-label">${label}</span><span class="stat-val">${val}</span></div>`;
-}
+function renderDash(d) {
+  const s = d.system||{}, pr = d.processes||{}, st = d.storage||{}, n = d.network||{};
 
-// ── Render functions ──────────────────────────────────────────────────────────
-function renderSystem(d) {
-  if (d.error) return `<div class="alert alert-warn">⚠️ ${d.error}</div>`;
-  return `
-    ${statRow('OS', `${d.os} ${d.os_release}`)}
-    ${statRow('Hostname', d.hostname || '—')}
-    ${statRow('CPU Cores', `${d.cpu_count_physical || '?'} physical / ${d.cpu_count_logical || '?'} logical`)}
-    ${statRow('RAM', `${d.ram_used_gb} GB / ${d.ram_total_gb} GB`)}
-    ${statRow('Python', d.python_version || '—')}
-  `;
-}
+  // System info
+  document.getElementById('sys-info').innerHTML = s.error ? err(s.error) :
+    row('OS', `${s.os||''} ${s.os_release||''}`) +
+    row('Hostname', s.hostname||'—') +
+    row('CPU Cores', `${s.cpu_count_physical||'?'} physical / ${s.cpu_count_logical||'?'} logical`) +
+    row('RAM', `${s.ram_used_gb||0} / ${s.ram_total_gb||0} GB`);
 
-function renderGauges(d) {
-  if (d.error) return `<div class="alert alert-warn">⚠️ ${d.error}</div>`;
-  let html = gauge('CPU', d.cpu_usage_avg || 0, '%')
-           + gauge('RAM', d.ram_percent || 0, '%')
-           + gauge('Swap', d.swap_percent || 0, '%');
-  (d.disks || []).forEach(dk => {
-    html += gauge(`Disk ${dk.mountpoint}`, dk.percent, '%');
-  });
-  return html;
-}
+  // Gauges
+  document.getElementById('gauges').innerHTML = s.error ? err(s.error) :
+    gauge('CPU', s.cpu_usage_avg||0) +
+    gauge('RAM', s.ram_percent||0) +
+    gauge('Swap', s.swap_percent||0) +
+    (s.disks||[]).map(d=>gauge(`Disk ${d.mountpoint}`, d.percent)).join('');
 
-function renderMisc(d) {
-  if (d.error) return `<div class="alert alert-warn">⚠️ ${d.error}</div>`;
-  let html = statRow('Uptime', d.uptime || '—')
-           + statRow('Boot time', d.boot_time || '—');
-  if (d.battery) {
-    const b = d.battery;
-    const icon = b.plugged_in ? '🔌' : '🔋';
-    const cls  = (!b.plugged_in && b.percent < 20) ? 'tag-crit' : (!b.plugged_in && b.percent < 40) ? 'tag-warn' : 'tag-ok';
-    html += statRow('Battery', `<span class="${cls}">${icon} ${b.percent}% — ${b.time_remaining}</span>`);
-  } else {
-    html += statRow('Battery', '<span class="tag-muted">No battery info</span>');
-  }
-  return html;
-}
+  // Battery & uptime
+  let batt = s.battery;
+  document.getElementById('battery').innerHTML = s.error ? err(s.error) :
+    row('Uptime', s.uptime||'—') +
+    row('Boot time', s.boot_time||'—') +
+    (batt ? row('Battery', `<span class="${!batt.plugged_in&&batt.percent<20?'tcrit':!batt.plugged_in&&batt.percent<40?'twarn':'tok'}">${batt.plugged_in?'🔌':'🔋'} ${batt.percent}% — ${batt.time_remaining}</span>`) : row('Battery','<span class="tmuted">No battery</span>'));
 
-function renderAlerts(d) {
-  const alerts = d.alerts || [];
-  if (!alerts.length) return `<div class="alert alert-ok">✅ No alerts — system looks healthy</div>`;
-  return alerts.map(a => {
-    const cls = a.includes('❌') ? 'alert-crit' : a.includes('⚠️') ? 'alert-warn' : 'alert-info';
-    return `<div class="alert ${cls}">${a}</div>`;
-  }).join('');
-}
+  // Alerts
+  const al = s.alerts||[];
+  document.getElementById('alerts').innerHTML = !al.length
+    ? `<div class="alert a-ok">✅ No alerts — system healthy</div>`
+    : al.map(a=>`<div class="alert ${a.includes('❌')?'a-crit':'a-warn'}">${a}</div>`).join('');
 
-function renderStorage(d) {
-  if (d.error) return `<div class="alert alert-warn">⚠️ ${d.error}</div>`;
-  let html = (d.partitions || []).map(p => `
-    <div class="disk-item">
-      <div class="gauge-header">
-        <span>💿 ${p.device} <span class="tag-muted">(${p.mountpoint})</span></span>
-        <span class="${p.percent_used>90?'tag-crit':p.percent_used>80?'tag-warn':'tag-ok'}">${p.percent_used}%</span>
-      </div>
-      <div class="gauge-track"><div class="gauge-fill ${p.percent_used>90?'gauge-crit':p.percent_used>80?'gauge-warn':'gauge-ok'}" style="width:${p.percent_used}%"></div></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:3px">${p.used_gb} GB used / ${p.total_gb} GB total — ${p.free_gb} GB free</div>
-    </div>`).join('');
+  // Storage
+  document.getElementById('storage').innerHTML = st.error ? err(st.error) :
+    (st.partitions||[]).map(p=>`<div style="margin-bottom:12px">
+      <div class="g-head"><span>💿 ${p.device} <span class="tmuted">(${p.mountpoint})</span></span>
+      <span class="${p.percent_used>90?'tcrit':p.percent_used>80?'twarn':'tok'}">${p.percent_used}%</span></div>
+      <div class="g-track"><div class="g-fill ${p.percent_used>90?'crit':p.percent_used>80?'warn':'ok'}" style="width:${p.percent_used}%"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">${p.used_gb} GB used · ${p.free_gb} GB free</div>
+    </div>`).join('') +
+    `<div style="margin-top:10px">${Object.entries(st.temp_sizes||{}).map(([k,v])=>row(k.replace(/_/g,' '),`<span class="tmuted">${v.size}</span>`)).join('')}</div>`;
 
-  if (d.temp_sizes) {
-    html += `<div style="margin-top:12px">`;
-    Object.entries(d.temp_sizes).forEach(([k, v]) => {
-      html += `<div class="stat-row"><span class="stat-label">${k.replace(/_/g,' ')}</span><span class="stat-val tag-muted">${v.size}</span></div>`;
-    });
-    html += `</div>`;
-  }
-  return html || `<div class="alert alert-info">No disk data</div>`;
+  // Network
+  const conns = n.established_connections||[];
+  document.getElementById('network').innerHTML = n.error ? err(n.error) : (
+    (n.suspicious_connections?.length ? `<div class="alert a-crit" style="margin-bottom:10px">❌ ${n.suspicious_connections.length} suspicious connection(s)!</div>` : '') +
+    (!conns.length ? `<div class="alert a-ok">✅ No active outbound connections</div>` :
+      `<div class="tmuted" style="font-size:11px;margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px">${conns.length} connections</div>` +
+      conns.slice(0,10).map(c=>`<div class="nrow"><span class="tblue">${c.process||'?'}</span><span class="tmuted" style="font-family:monospace">${c.local||''} → ${c.remote||''}</span></div>`).join('')) +
+    (n.dns_servers?.length ? `<div style="margin-top:8px">${row('DNS',n.dns_servers.join(' / '))}</div>` : '')
+  );
+
+  // Processes
+  const ps = pr.top_processes||[];
+  document.getElementById('processes').innerHTML = !ps.length ? `<div class="alert a-info">No data</div>` :
+    `<table class="ptable"><thead><tr><th>Process</th><th>CPU</th><th>Memory</th><th>User</th><th>PID</th></tr></thead><tbody>` +
+    ps.map(p=>`<tr>
+      <td><span class="pname" title="${p.cmdline}">${p.name}</span></td>
+      <td><span class="badge ${p.cpu_percent>50?'b-crit':p.cpu_percent>20?'b-warn':'b-ok'}">${p.cpu_percent.toFixed(1)}%</span></td>
+      <td><span class="badge ${p.mem_percent>10?'b-warn':'b-ok'}">${p.mem_percent.toFixed(1)}%</span></td>
+      <td class="tmuted">${p.user||''}</td><td class="tmuted">${p.pid}</td>
+    </tr>`).join('') + `</tbody></table>`;
+
+  document.getElementById('last-updated').textContent = `Updated: ${d.last_updated}`;
 }
 
 function renderSecurity(d) {
-  if (d.error) return `<div class="alert alert-warn">⚠️ ${d.error}</div>`;
-  const isSafe = !d.suspicious_processes?.length && !d.host_file_anomalies?.length && !d.warnings?.filter(w=>w.severity==='high').length;
-  let html = `<div class="sec-summary ${isSafe?'tag-ok':'tag-warn'}">${d.summary || (isSafe ? '✅ Clean' : '⚠️ Issues found')}</div>`;
-
-  if (d.suspicious_processes?.length) {
-    html += `<div class="alert alert-crit">❌ ${d.suspicious_processes.length} suspicious process(es) found</div>`;
-    d.suspicious_processes.forEach(p => {
-      html += `<div class="alert alert-warn" style="font-size:12px">⚠️ PID ${p.pid}: <b>${p.name}</b> — ${p.reason}</div>`;
-    });
-  }
-
-  (d.warnings || []).forEach(w => {
-    const cls = w.severity === 'high' ? 'alert-crit' : 'alert-info';
-    html += `<div class="alert ${cls}" style="font-size:12px">🔍 ${w.detail}</div>`;
-  });
-
-  html += statRow('Open ports', d.open_ports?.length || 0);
-  html += statRow('Cron jobs', d.cron_jobs?.length || 0);
-  return html;
+  const safe = !d.suspicious_processes?.length && !d.warnings?.filter(w=>w.severity==='high').length;
+  document.getElementById('security').innerHTML = (d.error ? err(d.error) :
+    `<div style="font-weight:600;margin-bottom:10px;${safe?'color:var(--green)':'color:var(--yellow)'}">${d.summary}</div>` +
+    (d.suspicious_processes||[]).map(p=>`<div class="alert a-crit">❌ PID ${p.pid}: <b>${p.name}</b> — ${p.reason}</div>`).join('') +
+    (d.warnings||[]).map(w=>`<div class="alert ${w.severity==='high'?'a-crit':'a-info'}">${w.detail}</div>`).join('') +
+    row('Open ports', d.open_ports?.length||0) +
+    row('Cron jobs', d.cron_jobs?.length||0));
 }
 
-function renderNetwork(d) {
-  if (d.error) return `<div class="alert alert-warn">⚠️ ${d.error}</div>`;
+const err = msg => `<div class="alert a-warn">⚠️ ${msg}</div>`;
 
-  let html = '';
-  if (d.suspicious_connections?.length) {
-    html += `<div class="alert alert-crit" style="margin-bottom:12px">❌ ${d.suspicious_connections.length} suspicious connection(s) detected!</div>`;
-  }
-
-  const conns = d.established_connections || [];
-  if (!conns.length) { html += `<div class="alert alert-ok">✅ No active outbound connections</div>`; }
-  else {
-    html += `<div style="margin-bottom:8px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px">${conns.length} established connections</div>`;
-    conns.slice(0, 12).forEach(c => {
-      html += `<div class="conn-row">
-        <span class="conn-process">${c.process || 'unknown'}</span>
-        <span class="conn-addr">${c.local || ''} → ${c.remote || ''}</span>
-        <span class="tag-muted">${c.status}</span>
-      </div>`;
-    });
-  }
-
-  if (d.dns_servers?.length) {
-    html += `<div style="margin-top:10px">${statRow('DNS servers', d.dns_servers.join(' / '))}</div>`;
-  }
-  return html;
-}
-
-function renderProcesses(d) {
-  if (d.error) return `<div class="alert alert-warn">⚠️ ${d.error}</div>`;
-  const procs = d.top_processes || [];
-  if (!procs.length) return `<div class="alert alert-info">No process data</div>`;
-
-  let rows = procs.map(p => {
-    const cpuCls = p.cpu_percent > 50 ? 'crit' : p.cpu_percent > 20 ? 'warn' : 'ok';
-    const memCls = p.mem_percent > 10 ? 'warn' : 'ok';
-    return `<tr>
-      <td><span class="proc-name" title="${p.cmdline}">${p.name}</span></td>
-      <td><span class="badge badge-${cpuCls}">${p.cpu_percent.toFixed(1)}%</span></td>
-      <td><span class="badge badge-${memCls}">${p.mem_percent.toFixed(1)}%</span></td>
-      <td class="tag-muted">${p.user || ''}</td>
-      <td class="tag-muted">${p.pid}</td>
-    </tr>`;
-  }).join('');
-
-  return `<table class="proc-table">
-    <thead><tr><th>Process</th><th>CPU</th><th>Memory</th><th>User</th><th>PID</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-}
-
-// ── Data fetching ─────────────────────────────────────────────────────────────
-async function fetchAll() {
+async function fetchDash() {
   try {
-    const res = await fetch('/api/all');
-    const data = await res.json();
-
-    document.getElementById('system-content').innerHTML  = renderSystem(data.system || {});
-    document.getElementById('gauges-content').innerHTML  = renderGauges(data.system || {});
-    document.getElementById('misc-content').innerHTML    = renderMisc(data.system || {});
-    document.getElementById('alerts-content').innerHTML  = renderAlerts(data.system || {});
-    document.getElementById('storage-content').innerHTML = renderStorage(data.storage || {});
-    document.getElementById('network-content').innerHTML = renderNetwork(data.network || {});
-    document.getElementById('processes-content').innerHTML = renderProcesses(data.processes || {});
-    document.getElementById('last-updated').textContent  = `Last updated: ${data.last_updated}`;
-  } catch(e) {
-    console.error('Fetch error:', e);
-  }
+    const r = await fetch('/api/all');
+    renderDash(await r.json());
+  } catch(e){}
 }
-
-async function fetchSecurity() {
+async function fetchSec() {
   try {
-    const res = await fetch('/api/security');
-    const data = await res.json();
-    document.getElementById('security-content').innerHTML = renderSecurity(data);
-  } catch(e) {}
+    const r = await fetch('/api/security');
+    renderSecurity(await r.json());
+  } catch(e){}
 }
 
-async function runFix(fixType) {
+async function fix(type) {
   const btn = event.target;
-  btn.disabled = true;
-  btn.innerHTML = `<span class="spinner"></span> Running…`;
-  const result = document.getElementById('fix-result');
-  result.style.display = 'none';
+  btn.disabled=true; btn.textContent='⏳ Running…';
+  const el = document.getElementById('fix-result');
+  el.style.display='none';
+  try {
+    const r = await fetch(`/api/fix/${type}`,{method:'POST'});
+    const d = await r.json();
+    el.style.display='block';
+    el.className = `fix-result alert ${d.success?'a-ok':'a-warn'}`;
+    el.innerHTML = d.success ? `✅ Done!${d.freed_mb?' Freed '+d.freed_mb+' MB.':''} ${d.note||''}` : `⚠️ ${d.error||d.note||'Failed'}`;
+    if(d.success) fetchDash();
+  } catch(e) {
+    el.style.display='block'; el.className='fix-result alert a-crit'; el.innerHTML='❌ Request failed';
+  }
+  btn.disabled=false; btn.textContent=btn.dataset.label||btn.textContent.replace('⏳ Running…','');
+  setTimeout(()=>{el.style.display='none'},6000);
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+let chatMessages = [];
+let isStreaming = false;
+
+function sendQuick(el) {
+  const text = el.textContent.replace(/^[^\w]+/,'').trim();
+  document.getElementById('chat-input').value = text;
+  switchTab('chat');
+  sendMessage();
+}
+
+const chatEl = () => document.getElementById('chat-messages');
+
+function appendMsg(role, html) {
+  const welcome = chatEl().querySelector('.welcome');
+  if(welcome) welcome.remove();
+  const div = document.createElement('div');
+  div.className = role==='user' ? 'msg msg-user' : 'msg msg-agent';
+  div.innerHTML = html;
+  chatEl().appendChild(div);
+  chatEl().scrollTop = chatEl().scrollHeight;
+  return div;
+}
+
+function showTool(name) {
+  const div = document.createElement('div');
+  div.className = 'tool-indicator';
+  div.id = 'tool-running';
+  div.innerHTML = `<span class="spinner"></span> Running <code>${name}</code>…`;
+  chatEl().appendChild(div);
+  chatEl().scrollTop = chatEl().scrollHeight;
+}
+
+function removeTool() {
+  const el = document.getElementById('tool-running');
+  if(el) el.remove();
+}
+
+function mdToHtml(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/```([\s\S]*?)```/g, (_,c)=>`<pre>${c.trim()}</pre>`)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+    .replace(/^\| (.+) \|$/gm, (_,row) => {
+      if(/^[-| ]+$/.test(row)) return '';
+      return '<tr>'+row.split('|').map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>';
+    })
+    .replace(/(<tr>[\s\S]*?<\/tr>)/g, t => `<table>${t}</table>`)
+    .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g, l=>`<ul>${l}</ul>`)
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>');
+}
+
+async function sendMessage() {
+  if(isStreaming) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if(!text) return;
+
+  input.value='';
+  input.style.height='auto';
+  isStreaming=true;
+  document.getElementById('send-btn').disabled=true;
+
+  appendMsg('user', text.replace(/</g,'&lt;'));
+  chatMessages.push({role:'user', content:text});
+
+  const agentDiv = appendMsg('agent', '<span class="spinner"></span>');
+  let agentText = '';
 
   try {
-    const res = await fetch(`/api/fix/${fixType}`, { method: 'POST' });
-    const data = await res.json();
-    result.style.display = 'block';
-    if (data.success) {
-      result.className = 'btn-result alert alert-ok';
-      result.innerHTML = `✅ Done! ${data.freed_mb ? 'Freed ' + data.freed_mb + ' MB.' : ''} ${data.note || ''}`;
-      fetchAll(); // refresh storage
-    } else {
-      result.className = 'btn-result alert alert-warn';
-      result.innerHTML = `⚠️ ${data.error || data.note || 'Could not complete fix'}`;
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({messages: chatMessages})
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while(true) {
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for(const line of lines) {
+        if(!line.startsWith('data: ')) continue;
+        try {
+          const ev = JSON.parse(line.slice(6));
+          if(ev.type === 'text') {
+            agentText += ev.text;
+            agentDiv.innerHTML = mdToHtml(agentText);
+            chatEl().scrollTop = chatEl().scrollHeight;
+          } else if(ev.type === 'tool') {
+            removeTool();
+            showTool(ev.name);
+          } else if(ev.type === 'done') {
+            removeTool();
+          }
+        } catch(e) {}
+      }
     }
+
+    chatMessages.push({role:'assistant', content: agentText});
   } catch(e) {
-    result.style.display = 'block';
-    result.className = 'btn-result alert alert-crit';
-    result.innerHTML = `❌ Request failed`;
+    agentDiv.innerHTML = `<span class="tcrit">❌ Connection error. Is ANTHROPIC_API_KEY set?</span>`;
   }
 
-  btn.disabled = false;
-  btn.innerHTML = btn.innerHTML.replace('<span class="spinner"></span> Running…', btn.textContent);
-  setTimeout(() => { result.style.display = 'none'; }, 6000);
+  isStreaming=false;
+  document.getElementById('send-btn').disabled=false;
+  input.focus();
 }
+
+// Enter to send
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if(e.key==='Enter' && !e.shiftKey){e.preventDefault();sendMessage();}
+});
+// Auto-resize textarea
+document.getElementById('chat-input').addEventListener('input', function(){
+  this.style.height='auto';
+  this.style.height=Math.min(this.scrollHeight,120)+'px';
+});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-fetchAll();
-fetchSecurity();
-setInterval(fetchAll, 10000);       // refresh main data every 10s
-setInterval(fetchSecurity, 120000); // refresh security every 2 min
+fetchDash();
+fetchSec();
+setInterval(fetchDash, 10000);
+setInterval(fetchSec, 120000);
 </script>
 </body>
 </html>
