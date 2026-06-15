@@ -88,21 +88,30 @@ def check_security() -> dict:
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
 
-    # ── 2. Cron jobs ──────────────────────────────────────────────────────────
+    # ── 2. Cron jobs (Linux/macOS) / Task Scheduler summary (Windows) ────────
     if platform.system() in ("Linux", "Darwin"):
         cron_sources = ["/etc/crontab"]
         if platform.system() == "Linux":
             cron_sources.append("/etc/cron.d/")
-
         for src in cron_sources:
             _read_cron(src, result["cron_jobs"])
-
         try:
             proc = subprocess.run(["crontab", "-l"], capture_output=True, text=True, timeout=5)
             for line in proc.stdout.splitlines():
                 line = line.strip()
                 if line and not line.startswith("#"):
                     result["cron_jobs"].append({"source": "user crontab", "entry": line})
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+    elif platform.system() == "Windows":
+        try:
+            proc = subprocess.run(
+                ["schtasks", "/query", "/fo", "LIST"],
+                capture_output=True, text=True, timeout=10
+            )
+            tasks = [l for l in proc.stdout.splitlines() if l.startswith("TaskName:")][:10]
+            for t in tasks:
+                result["cron_jobs"].append({"source": "Task Scheduler", "entry": t.strip()})
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
 
@@ -126,20 +135,29 @@ def check_security() -> dict:
         except psutil.AccessDenied:
             result["open_ports"].append({"note": "Access denied — try running as root"})
 
-    # ── 4. /etc/hosts anomalies ────────────────────────────────────────────────
-    hosts_path = "/etc/hosts" if platform.system() != "Windows" else r"C:\Windows\System32\drivers\etc\hosts"
+    # ── 4. /etc/hosts anomalies ───────────────────────────────────────────────
+    hosts_path = (r"C:\Windows\System32\drivers\etc\hosts"
+                  if platform.system() == "Windows" else "/etc/hosts")
     _check_hosts_file(hosts_path, result)
 
-    # ── 5. Recently modified /etc files (Linux) ────────────────────────────────
+    # ── 5. Recently modified /etc files (Linux only) ──────────────────────────
     if platform.system() == "Linux":
         try:
-            proc = subprocess.run(
-                ["find", "/etc", "-maxdepth", "2", "-mtime", "-7", "-type", "f",
-                 "-not", "-path", "*/.*"],
-                capture_output=True, text=True, timeout=15,
-            )
-            result["recent_etc_changes"] = proc.stdout.strip().splitlines()[:20]
-        except (subprocess.TimeoutExpired, PermissionError):
+            import time as _time
+            cutoff = _time.time() - 7 * 86400
+            changed = []
+            for root, _, files in os.walk("/etc"):
+                for f in files:
+                    fp = os.path.join(root, f)
+                    try:
+                        if os.path.getmtime(fp) > cutoff:
+                            changed.append(fp)
+                    except OSError:
+                        pass
+                if len(changed) > 20:
+                    break
+            result["recent_etc_changes"] = changed[:20]
+        except (PermissionError, Exception):
             pass
 
     # ── 6. SSH authorized_keys ────────────────────────────────────────────────
@@ -211,16 +229,30 @@ def check_network() -> dict:
         result["error"] = "Access denied — try running as root for full details"
 
     # DNS servers
-    resolv = Path("/etc/resolv.conf")
-    if resolv.exists():
+    if platform.system() == "Windows":
         try:
-            for line in resolv.read_text().splitlines():
-                if line.startswith("nameserver"):
-                    parts = line.split()
-                    if len(parts) >= 2:
-                        result["dns_servers"].append(parts[1])
-        except PermissionError:
+            proc = subprocess.run(
+                ["powershell", "-Command",
+                 "Get-DnsClientServerAddress -AddressFamily IPv4 | Select-Object -ExpandProperty ServerAddresses"],
+                capture_output=True, text=True, timeout=8
+            )
+            for line in proc.stdout.splitlines():
+                line = line.strip()
+                if line and line not in result["dns_servers"]:
+                    result["dns_servers"].append(line)
+        except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
+    else:
+        resolv = Path("/etc/resolv.conf")
+        if resolv.exists():
+            try:
+                for line in resolv.read_text().splitlines():
+                    if line.startswith("nameserver"):
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            result["dns_servers"].append(parts[1])
+            except PermissionError:
+                pass
 
     suspicious_count = len(result["suspicious_connections"])
     result["summary"] = (

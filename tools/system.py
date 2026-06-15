@@ -29,7 +29,7 @@ def run_system_check() -> dict:
         return result
 
     # CPU
-    cpu_pct = psutil.cpu_percent(interval=1, percpu=True)
+    cpu_pct = psutil.cpu_percent(interval=0.2, percpu=True)
     result["cpu_count_logical"] = psutil.cpu_count()
     result["cpu_count_physical"] = psutil.cpu_count(logical=False)
     result["cpu_usage_per_core"] = cpu_pct
@@ -177,7 +177,7 @@ def check_hardware_health() -> dict:
                 break
     result["disk_smart"] = smart
 
-    # dmesg hardware errors (Linux)
+    # dmesg hardware errors (Linux only)
     if platform.system() == "Linux":
         try:
             proc = subprocess.run(
@@ -192,6 +192,8 @@ def check_hardware_health() -> dict:
             result["dmesg_hw_errors"] = errors
         except (FileNotFoundError, PermissionError, subprocess.TimeoutExpired):
             result["dmesg_hw_errors"] = []
+    elif platform.system() == "Windows":
+        result["dmesg_hw_errors"] = []
 
     return result
 
@@ -256,6 +258,35 @@ def get_system_logs(log_type: str = "system", lines: int = 100, filter_keyword: 
             result["entries"] = proc.stdout.strip().splitlines()[-lines:]
             result["source"] = "macOS unified log"
         except Exception as e:
+            result["error"] = str(e)
+
+    elif platform.system() == "Windows":
+        try:
+            level_map = {
+                "system": "System", "kernel": "System",
+                "application": "Application", "crash": "Application",
+                "auth": "Security"
+            }
+            log_name = level_map.get(log_type, "System")
+            ps_cmd = (
+                f"Get-EventLog -LogName {log_name} -Newest {lines} "
+                f"| Select-Object TimeGenerated,EntryType,Source,Message "
+                f"| Format-List"
+            )
+            if filter_keyword:
+                ps_cmd = (
+                    f"Get-EventLog -LogName {log_name} -Newest {lines} "
+                    f"-Message '*{filter_keyword}*' "
+                    f"| Select-Object TimeGenerated,EntryType,Source,Message "
+                    f"| Format-List"
+                )
+            proc = subprocess.run(
+                ["powershell", "-Command", ps_cmd],
+                capture_output=True, text=True, timeout=20
+            )
+            result["entries"] = proc.stdout.strip().splitlines()[-lines:]
+            result["source"] = f"Windows Event Log ({log_name})"
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
             result["error"] = str(e)
 
     return result
