@@ -114,6 +114,16 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .welcome{text-align:center;margin:auto;padding:30px;color:var(--muted)}
 .welcome h2{color:var(--text);margin-bottom:8px;font-size:18px}
 .welcome p{margin-bottom:16px;font-size:14px}
+
+/* ── Monitor log ── */
+.mlog-entry{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.mlog-entry:last-child{border-bottom:none}
+.mlog-time{color:var(--muted);min-width:38px;font-family:monospace;font-size:12px;padding-top:1px}
+.mlog-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.dot-ok{background:var(--green)} .dot-fixed{background:var(--blue)} .dot-warning{background:var(--yellow)} .dot-error{background:var(--red)}
+.mlog-body{flex:1;min-width:0}
+.mlog-action{font-size:13px;font-weight:600;color:var(--text)}
+.mlog-detail{font-size:12px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -186,6 +196,14 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       <button class="btn" onclick="fix('free_memory')">🧠 Free Memory</button>
     </div>
     <div class="fix-result alert" id="fix-result"></div>
+  </div>
+
+  <div class="card col-wide">
+    <div class="card-title">
+      <span>🤖</span> Auto-Monitor
+      <span id="monitor-badge" style="margin-left:auto;font-size:11px;color:var(--green);font-weight:normal;text-transform:none;letter-spacing:0">● active — checks every 5 min</span>
+    </div>
+    <div id="monitor-log"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   </div>
 
 </div>
@@ -340,6 +358,35 @@ async function fix(type) {
   setTimeout(()=>{el.style.display='none'},6000);
 }
 
+// ── Auto-monitor log ──────────────────────────────────────────────────────────
+const SEV_DOT = {ok:'dot-ok', fixed:'dot-fixed', warning:'dot-warning', error:'dot-error'};
+const SEV_COL = {ok:'tok', fixed:'tblue', warning:'twarn', error:'tcrit'};
+
+function renderMonitor(d) {
+  const log = d.log || [];
+  const el = document.getElementById('monitor-log');
+  if (!log.length) {
+    el.innerHTML = '<div class="alert a-info" style="font-size:12px">Monitor started — first check in ~20 seconds…</div>';
+    return;
+  }
+  el.innerHTML = log.slice(0, 10).map(e => `
+    <div class="mlog-entry">
+      <span class="mlog-time">${e.time}</span>
+      <span class="mlog-dot ${SEV_DOT[e.severity]||'dot-ok'}"></span>
+      <div class="mlog-body">
+        <div class="mlog-action ${SEV_COL[e.severity]||'tok'}">${e.action}</div>
+        <div class="mlog-detail">${e.detail}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function fetchMonitor() {
+  try {
+    const r = await fetch('/api/monitor-log');
+    renderMonitor(await r.json());
+  } catch(e) {}
+}
+
 // ── Chat ──────────────────────────────────────────────────────────────────────
 let chatMessages = [];
 let isStreaming = false;
@@ -474,8 +521,10 @@ document.getElementById('chat-input').addEventListener('input', function(){
 // ── Init ──────────────────────────────────────────────────────────────────────
 fetchDash();
 fetchSec();
+fetchMonitor();
 setInterval(fetchDash, 10000);
 setInterval(fetchSec, 120000);
+setInterval(fetchMonitor, 30000);
 </script>
 </body>
 </html>

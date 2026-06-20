@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import threading
+import time as _time
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from datetime import datetime
 
@@ -50,6 +51,124 @@ def _get(key, fn, *args, ttl=30, **kwargs):
     if stale:
         threading.Thread(target=_refresh, args=(key, fn) + args, kwargs=kwargs, daemon=True).start()
     return cached
+
+
+# ── Auto-heal monitor ──────────────────────────────────────────────────────────
+_monitor_log: list = []
+_monitor_lock = threading.Lock()
+_last_clear: dict = {}       # throttle: key → timestamp of last fix
+_last_security_ts: float = 0.0
+_last_routine_ts: float = 0.0
+
+
+def _log_monitor(action: str, detail: str, severity: str = "ok"):
+    entry = {
+        "time": datetime.now().strftime("%H:%M"),
+        "action": action,
+        "detail": detail,
+        "severity": severity,  # ok | fixed | warning | error
+    }
+    with _monitor_lock:
+        _monitor_log.insert(0, entry)
+        del _monitor_log[40:]  # keep last 40 entries
+
+
+def _auto_heal():
+    """Background loop: health-check every 5 min, auto-fix safe issues."""
+    global _last_security_ts, _last_routine_ts
+    _time.sleep(20)  # brief startup delay so caches warm first
+
+    while True:
+        try:
+            now = _time.time()
+            actions = []
+            health = run_system_check()
+
+            # ── Disk: auto-clear temp >85%, also clear cache >90% ─────────────
+            for disk in health.get("disks", []):
+                pct = disk.get("percent", 0)
+                mp  = disk.get("mountpoint", "?")
+
+                if pct > 85:
+                    key = f"temp:{mp}"
+                    if now - _last_clear.get(key, 0) > 900:   # 15-min throttle
+                        res = fix_issue("clear_temp")
+                        _last_clear[key] = now
+                        freed = res.get("freed_mb", 0)
+                        _log_monitor(
+                            "Auto-fix: clear temp",
+                            f"Disk {mp} at {pct}%{f' — freed {freed} MB' if freed else ''}",
+                            "fixed",
+                        )
+                        actions.append("clear_temp")
+
+                if pct > 90:
+                    key = f"cache:{mp}"
+                    if now - _last_clear.get(key, 0) > 900:
+                        res = fix_issue("clear_cache")
+                        _last_clear[key] = now
+                        freed = res.get("freed_mb", 0)
+                        _log_monitor(
+                            "Auto-fix: clear cache",
+                            f"Disk {mp} critical at {pct}%{f' — freed {freed} MB' if freed else ''}",
+                            "fixed",
+                        )
+                        actions.append("clear_cache")
+
+            # ── RAM: free memory if >90% ──────────────────────────────────────
+            ram_pct = health.get("ram_percent", 0)
+            if ram_pct > 90:
+                key = "ram"
+                if now - _last_clear.get(key, 0) > 900:
+                    fix_issue("free_memory")
+                    _last_clear[key] = now
+                    _log_monitor("Auto-fix: free memory", f"RAM at {ram_pct}%", "fixed")
+                    actions.append("free_memory")
+
+            # ── CPU: log sustained spike ──────────────────────────────────────
+            cpu_avg = health.get("cpu_usage_avg", 0)
+            if cpu_avg > 90:
+                _log_monitor(
+                    "Alert: high CPU",
+                    f"CPU averaging {cpu_avg}% — check Processes tab",
+                    "warning",
+                )
+
+            # ── Security scan every 30 min ────────────────────────────────────
+            if now - _last_security_ts > 1800:
+                _last_security_ts = now
+                try:
+                    sec = check_security()
+                    sp  = sec.get("suspicious_processes", [])
+                    hw  = [w for w in sec.get("warnings", []) if w.get("severity") == "high"]
+                    if sp or hw:
+                        for p in sp[:3]:
+                            _log_monitor(
+                                "Security alert",
+                                f"Suspicious PID {p.get('pid')}: {p.get('reason','')}",
+                                "warning",
+                            )
+                        for w in hw[:3]:
+                            _log_monitor("Security alert", w.get("detail", ""), "warning")
+                    else:
+                        _log_monitor("Security scan", "No threats detected", "ok")
+                except Exception:
+                    pass
+
+            # ── Routine "all clear" every 30 min (avoid log spam) ─────────────
+            if not actions and cpu_avg <= 90 and ram_pct <= 90:
+                if now - _last_routine_ts > 1800:
+                    _last_routine_ts = now
+                    _log_monitor(
+                        "Health check passed",
+                        f"CPU {cpu_avg}% · RAM {ram_pct}% · Disk OK",
+                        "ok",
+                    )
+
+        except Exception as exc:
+            _log_monitor("Monitor error", str(exc)[:120], "error")
+
+        _time.sleep(300)  # run every 5 minutes
 
 
 # ── Agent chat tools ───────────────────────────────────────────────────────────
@@ -171,6 +290,12 @@ def api_all():
 
 
 # ── Chat route (streaming SSE) ─────────────────────────────────────────────────
+@app.route("/api/monitor-log")
+def api_monitor_log():
+    with _monitor_lock:
+        return jsonify({"log": list(_monitor_log), "active": True})
+
+
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
     data = request.json or {}
@@ -237,4 +362,7 @@ if __name__ == "__main__":
         ("network",   check_network,       {}),
     ]:
         threading.Thread(target=_refresh, args=(_k, _fn), kwargs=_kw, daemon=True).start()
+    # Start self-healing background monitor
+    threading.Thread(target=_auto_heal, daemon=True).start()
+    print("🤖 Auto-monitor active — checks every 5 minutes and self-heals issues\n")
     app.run(debug=False, host="0.0.0.0", port=5000, threaded=True)
