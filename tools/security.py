@@ -79,12 +79,17 @@ def check_security() -> dict:
                         "reason": "Matches known crypto-miner / malware process name",
                     })
                 if not p.info["name"] or p.info["name"].strip() in ("", "."):
-                    result["suspicious_processes"].append({
-                        "pid": p.info["pid"],
-                        "name": "(empty)",
-                        "user": p.info["username"],
-                        "reason": "Process has no visible name (possible hidden process)",
-                    })
+                    pid = p.info["pid"]
+                    exe = p.info.get("exe") or ""
+                    # PID 0/4 are Windows System Idle / System; any process with a
+                    # readable exe path is a protected system process, not hidden malware
+                    if pid not in (0, 4) and not exe:
+                        result["suspicious_processes"].append({
+                            "pid": pid,
+                            "name": "(empty)",
+                            "user": p.info["username"],
+                            "reason": "Process has no visible name or executable path",
+                        })
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
 

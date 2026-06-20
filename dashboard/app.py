@@ -187,18 +187,17 @@ def api_chat():
         chat_messages = list(messages)
 
         while True:
-            response = client.messages.create(
+            # Stream tokens as they arrive so the user sees words appearing immediately
+            with client.messages.stream(
                 model="claude-sonnet-4-6",
                 max_tokens=4096,
                 system=SYSTEM_PROMPT,
                 tools=TOOLS,
                 messages=chat_messages,
-            )
-
-            # Stream text blocks
-            for block in response.content:
-                if hasattr(block, "text") and block.text:
-                    yield f"data: {json.dumps({'type': 'text', 'text': block.text})}\n\n"
+            ) as stream:
+                for text_chunk in stream.text_stream:
+                    yield f"data: {json.dumps({'type': 'text', 'text': text_chunk})}\n\n"
+                response = stream.get_final_message()
 
             chat_messages.append({"role": "assistant", "content": response.content})
 
