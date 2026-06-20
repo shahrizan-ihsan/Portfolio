@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from datetime import datetime
 
 import anthropic
@@ -150,13 +151,23 @@ def api_fix(fix_type):
 
 @app.route("/api/all")
 def api_all():
-    return jsonify({
-        "system":    _get("system", run_system_check, ttl=10),
-        "processes": _get("processes", get_running_processes, sort_by="cpu", top_n=15, ttl=10),
-        "storage":   _get("storage", get_storage_info, find_large_files=False, ttl=60),
-        "network":   _get("network", check_network, ttl=15),
-        "last_updated": datetime.now().strftime("%H:%M:%S"),
-    })
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        fs = {
+            "system":    pool.submit(_get, "system",    run_system_check, ttl=10),
+            "processes": pool.submit(_get, "processes", get_running_processes, sort_by="cpu", top_n=15, ttl=10),
+            "storage":   pool.submit(_get, "storage",   get_storage_info, find_large_files=False, ttl=60),
+            "network":   pool.submit(_get, "network",   check_network, ttl=15),
+        }
+        out = {}
+        for key, fut in fs.items():
+            try:
+                out[key] = fut.result(timeout=10)
+            except FutureTimeout:
+                out[key] = {"error": "timeout — data still loading"}
+            except Exception as exc:
+                out[key] = {"error": str(exc)}
+    out["last_updated"] = datetime.now().strftime("%H:%M:%S")
+    return jsonify(out)
 
 
 # ── Chat route (streaming SSE) ─────────────────────────────────────────────────
@@ -220,5 +231,11 @@ def api_chat():
 
 if __name__ == "__main__":
     print("\n🖥️  IT Support Dashboard → http://localhost:5000\n")
-    threading.Thread(target=_refresh, args=("system", run_system_check), daemon=True).start()
+    for _k, _fn, _kw in [
+        ("system",    run_system_check,    {}),
+        ("processes", get_running_processes, {"sort_by": "cpu", "top_n": 15}),
+        ("storage",   get_storage_info,    {"find_large_files": False}),
+        ("network",   check_network,       {}),
+    ]:
+        threading.Thread(target=_refresh, args=(_k, _fn), kwargs=_kw, daemon=True).start()
     app.run(debug=False, host="0.0.0.0", port=5000, threaded=True)

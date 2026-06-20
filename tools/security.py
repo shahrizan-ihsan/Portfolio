@@ -200,8 +200,19 @@ def check_network() -> dict:
         "summary": "",
     }
 
+    import concurrent.futures as _cf
+    def _fetch_conns():
+        return psutil.net_connections(kind="inet")
+
     try:
-        for conn in psutil.net_connections(kind="inet"):
+        with _cf.ThreadPoolExecutor(max_workers=1) as _pool:
+            try:
+                conns = _pool.submit(_fetch_conns).result(timeout=5)
+            except _cf.TimeoutError:
+                result["error"] = "Network scan timed out (try running as Administrator)"
+                conns = []
+
+        for conn in conns:
             entry = {
                 "proto": "tcp" if conn.type == 1 else "udp",
                 "local": f"{conn.laddr.ip}:{conn.laddr.port}" if conn.laddr else None,
@@ -226,7 +237,7 @@ def check_network() -> dict:
                         "reason": f"Outbound connection to known backdoor port {conn.raddr.port}",
                     })
     except psutil.AccessDenied:
-        result["error"] = "Access denied — try running as root for full details"
+        result["error"] = "Access denied — try running as Administrator for full details"
 
     # DNS servers
     if platform.system() == "Windows":
