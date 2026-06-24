@@ -1,0 +1,192 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" width="900" height="1400" font-family="'Segoe UI', Arial, sans-serif">
+
+  <!-- Background -->
+  <rect width="900" height="1400" fill="#0d1117"/>
+
+  <!-- TOP HEADER BAND -->
+  <rect x="0" y="0" width="900" height="110" fill="#161b22"/>
+  <rect x="0" y="106" width="900" height="4" fill="#f0a500"/>
+
+  <!-- Title -->
+  <text x="450" y="42" text-anchor="middle" fill="#f0a500" font-size="22" font-weight="700" letter-spacing="2">SHAH'S AI + GITHUB WORKFLOW</text>
+  <text x="450" y="70" text-anchor="middle" fill="#8b949e" font-size="13">Standard Operating Procedure — shahs-portfolio</text>
+  <text x="450" y="92" text-anchor="middle" fill="#58a6ff" font-size="12" font-weight="600">16 Years. 28 Projects. One Weekly Retrospective.</text>
+
+  <!-- ═══ SECTION 1: THE GOLDEN RULE ═══ -->
+  <rect x="40" y="126" width="820" height="64" rx="8" fill="#21262d" stroke="#f0a500" stroke-width="1.5"/>
+  <text x="450" y="151" text-anchor="middle" fill="#f0a500" font-size="13" font-weight="700">THE GOLDEN RULE</text>
+  <text x="450" y="173" text-anchor="middle" fill="#e6edf3" font-size="14" font-weight="600">CONTEXT  +  TASK  +  RAW MATERIAL  =  GREAT AI OUTPUT</text>
+
+  <!-- ═══ SECTION 2: AI SESSION FLOW ═══ -->
+  <text x="450" y="226" text-anchor="middle" fill="#8b949e" font-size="11" letter-spacing="3">──────────────────────────────────────────────────</text>
+  <text x="450" y="246" text-anchor="middle" fill="#f0a500" font-size="15" font-weight="700" letter-spacing="1">AI SESSION FLOW</text>
+
+  <!-- Step boxes — 2 columns -->
+  <!-- Step 1 -->
+  <rect x="40" y="260" width="390" height="82" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="40" y="260" width="6" height="82" rx="3" fill="#58a6ff"/>
+  <text x="64" y="283" fill="#58a6ff" font-size="11" font-weight="700">STEP 1 — OPEN NEW CHAT</text>
+  <text x="64" y="301" fill="#8b949e" font-size="11">Claude: claude.ai</text>
+  <text x="64" y="318" fill="#8b949e" font-size="11">ChatGPT: chatgpt.com</text>
+  <text x="64" y="335" fill="#8b949e" font-size="11">Gemini, Copilot, etc.</text>
+
+  <!-- Step 2 -->
+  <rect x="470" y="260" width="390" height="82" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="470" y="260" width="6" height="82" rx="3" fill="#58a6ff"/>
+  <text x="494" y="283" fill="#58a6ff" font-size="11" font-weight="700">STEP 2 — PASTE MASTER CONTEXT</text>
+  <text x="494" y="301" fill="#8b949e" font-size="11">Who you are (name, role, 16 years STB)</text>
+  <text x="494" y="318" fill="#8b949e" font-size="11">Your project (28-week retrospective)</text>
+  <text x="494" y="335" fill="#8b949e" font-size="11">Your voice (personal, authentic, not corporate)</text>
+
+  <!-- Step 3 -->
+  <rect x="40" y="355" width="390" height="82" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="40" y="355" width="6" height="82" rx="3" fill="#3fb950"/>
+  <text x="64" y="378" fill="#3fb950" font-size="11" font-weight="700">STEP 3 — ADD TASK TEMPLATE</text>
+  <text x="64" y="396" fill="#8b949e" font-size="11">LinkedIn Carousel / IG Caption</text>
+  <text x="64" y="413" fill="#8b949e" font-size="11">GitHub File / Bio Update</text>
+  <text x="64" y="430" fill="#8b949e" font-size="11">Brainstorm / Email / Stakeholder Comms</text>
+
+  <!-- Step 4 -->
+  <rect x="470" y="355" width="390" height="82" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="470" y="355" width="6" height="82" rx="3" fill="#3fb950"/>
+  <text x="494" y="378" fill="#3fb950" font-size="11" font-weight="700">STEP 4 — DUMP RAW MATERIAL</text>
+  <text x="494" y="396" fill="#8b949e" font-size="11">Old reports, bullet points, rough notes</text>
+  <text x="494" y="413" fill="#8b949e" font-size="11">Voice-note style text — messy is fine</text>
+  <text x="494" y="430" fill="#8b949e" font-size="11">Stats, feelings, outcomes — all of it</text>
+
+  <!-- Step 5 -->
+  <rect x="40" y="450" width="390" height="68" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="40" y="450" width="6" height="68" rx="3" fill="#f0a500"/>
+  <text x="64" y="473" fill="#f0a500" font-size="11" font-weight="700">STEP 5 — GET FIRST DRAFT</text>
+  <text x="64" y="491" fill="#8b949e" font-size="11">Send prompt. Read the draft.</text>
+  <text x="64" y="508" fill="#8b949e" font-size="11">Don't accept it yet — iterate.</text>
+
+  <!-- Step 6 -->
+  <rect x="470" y="450" width="390" height="68" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="470" y="450" width="6" height="68" rx="3" fill="#f0a500"/>
+  <text x="494" y="473" fill="#f0a500" font-size="11" font-weight="700">STEP 6 — ITERATE</text>
+  <text x="494" y="491" fill="#8b949e" font-size="11">"Make the hook punchier" / "Shorter" / "More personal"</text>
+  <text x="494" y="508" fill="#8b949e" font-size="11">"Change CTA to a question" / "Give 3 alternatives"</text>
+
+  <!-- Step 7 -->
+  <rect x="40" y="531" width="390" height="82" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="40" y="531" width="6" height="82" rx="3" fill="#bc8cff"/>
+  <text x="64" y="554" fill="#bc8cff" font-size="11" font-weight="700">STEP 7 — COPY TO RIGHT PLACE</text>
+  <text x="64" y="572" fill="#8b949e" font-size="11">LinkedIn → paste and schedule</text>
+  <text x="64" y="589" fill="#8b949e" font-size="11">Canva → paste carousel text into slides</text>
+  <text x="64" y="606" fill="#8b949e" font-size="11">GitHub → save to Week-XX file</text>
+
+  <!-- Step 8 -->
+  <rect x="470" y="531" width="390" height="82" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <rect x="470" y="531" width="6" height="82" rx="3" fill="#bc8cff"/>
+  <text x="494" y="554" fill="#bc8cff" font-size="11" font-weight="700">STEP 8 — SAVE GOOD PROMPTS</text>
+  <text x="494" y="572" fill="#8b949e" font-size="11">If a prompt worked really well —</text>
+  <text x="494" y="589" fill="#8b949e" font-size="11">add it to Claude.md on GitHub</text>
+  <text x="494" y="606" fill="#8b949e" font-size="11">Build your personal prompt library over time</text>
+
+  <!-- ═══ SECTION 3: TASK TEMPLATES ═══ -->
+  <text x="450" y="652" text-anchor="middle" fill="#8b949e" font-size="11" letter-spacing="3">──────────────────────────────────────────────────</text>
+  <text x="450" y="672" text-anchor="middle" fill="#f0a500" font-size="15" font-weight="700" letter-spacing="1">TASK TEMPLATES — PICK ONE PER SESSION</text>
+
+  <!-- Template cards row 1 -->
+  <rect x="40" y="686" width="250" height="100" rx="8" fill="#161b22" stroke="#58a6ff" stroke-width="1"/>
+  <text x="165" y="706" text-anchor="middle" fill="#58a6ff" font-size="11" font-weight="700">WEEKLY RETROSPECTIVE</text>
+  <text x="55" y="724" fill="#8b949e" font-size="10">Week [X] | Project | Year | Market</text>
+  <text x="55" y="740" fill="#8b949e" font-size="10">Format: 8-slide LinkedIn carousel</text>
+  <text x="55" y="756" fill="#8b949e" font-size="10">Hook → Context → Challenge →</text>
+  <text x="55" y="772" fill="#8b949e" font-size="10">Action → Result → Lesson → CTA</text>
+
+  <rect x="325" y="686" width="250" height="100" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1"/>
+  <text x="450" y="706" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="700">INSTAGRAM CAPTION</text>
+  <text x="340" y="724" fill="#8b949e" font-size="10">For @hata6781</text>
+  <text x="340" y="740" fill="#8b949e" font-size="10">Companion to LinkedIn carousel</text>
+  <text x="340" y="756" fill="#8b949e" font-size="10">Max 5 lines + 3-5 hashtags</text>
+  <text x="340" y="772" fill="#8b949e" font-size="10">Tone: Personal, warm, short</text>
+
+  <rect x="610" y="686" width="250" height="100" rx="8" fill="#161b22" stroke="#f0a500" stroke-width="1"/>
+  <text x="735" y="706" text-anchor="middle" fill="#f0a500" font-size="11" font-weight="700">GITHUB / DOCS</text>
+  <text x="625" y="724" fill="#8b949e" font-size="10">Markdown file for repo</text>
+  <text x="625" y="740" fill="#8b949e" font-size="10">Skills, About, Claude, SOP, Week-XX</text>
+  <text x="625" y="756" fill="#8b949e" font-size="10">Style: Clear, structured,</text>
+  <text x="625" y="772" fill="#8b949e" font-size="10">professional but human</text>
+
+  <!-- Template cards row 2 -->
+  <rect x="40" y="798" width="250" height="86" rx="8" fill="#161b22" stroke="#bc8cff" stroke-width="1"/>
+  <text x="165" y="818" text-anchor="middle" fill="#bc8cff" font-size="11" font-weight="700">LINKEDIN BIO / HEADLINE</text>
+  <text x="55" y="836" fill="#8b949e" font-size="10">Update bio or headline</text>
+  <text x="55" y="852" fill="#8b949e" font-size="10">Tone: Confident, authentic, SEA expert</text>
+  <text x="55" y="868" fill="#8b949e" font-size="10">Bio: under 200 words | Headline: 10 words</text>
+
+  <rect x="325" y="798" width="250" height="86" rx="8" fill="#161b22" stroke="#f78166" stroke-width="1"/>
+  <text x="450" y="818" text-anchor="middle" fill="#f78166" font-size="11" font-weight="700">BRAINSTORM</text>
+  <text x="340" y="836" fill="#8b949e" font-size="10">Hooks / angles / visuals / ideas</text>
+  <text x="340" y="852" fill="#8b949e" font-size="10">Ask for 10 options, pick your direction</text>
+  <text x="340" y="868" fill="#8b949e" font-size="10">Great for carousel slide 1 hooks</text>
+
+  <rect x="610" y="798" width="250" height="86" rx="8" fill="#161b22" stroke="#79c0ff" stroke-width="1"/>
+  <text x="735" y="818" text-anchor="middle" fill="#79c0ff" font-size="11" font-weight="700">EMAIL / STAKEHOLDER</text>
+  <text x="625" y="836" fill="#8b949e" font-size="10">Professional comms, briefs, proposals</text>
+  <text x="625" y="852" fill="#8b949e" font-size="10">Tone: Warm but professional</text>
+  <text x="625" y="868" fill="#8b949e" font-size="10">Paste bullet points as raw material</text>
+
+  <!-- ═══ SECTION 4: GITHUB UPDATE SOP ═══ -->
+  <text x="450" y="916" text-anchor="middle" fill="#8b949e" font-size="11" letter-spacing="3">──────────────────────────────────────────────────</text>
+  <text x="450" y="936" text-anchor="middle" fill="#f0a500" font-size="15" font-weight="700" letter-spacing="1">GITHUB UPDATE SOP</text>
+
+  <!-- GitHub actions 3 columns -->
+  <rect x="40" y="950" width="256" height="130" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+  <text x="168" y="972" text-anchor="middle" fill="#3fb950" font-size="12" font-weight="700">EDIT A FILE</text>
+  <text x="55" y="992" fill="#8b949e" font-size="10">1. Open the file in your repo</text>
+  <text x="55" y="1008" fill="#8b949e" font-size="10">2. Click pencil icon ✏️</text>
+  <text x="55" y="1024" fill="#8b949e" font-size="10">3. Make your edits</text>
+  <text x="55" y="1040" fill="#8b949e" font-size="10">4. Click "Commit changes..."</text>
+  <text x="55" y="1056" fill="#8b949e" font-size="10">5. Write commit message</text>
+  <text x="55" y="1072" fill="#8b949e" font-size="10">6. Click "Commit changes" ✅</text>
+
+  <rect x="322" y="950" width="256" height="130" rx="8" fill="#161b22" stroke="#58a6ff" stroke-width="1.5"/>
+  <text x="450" y="972" text-anchor="middle" fill="#58a6ff" font-size="12" font-weight="700">CREATE NEW FILE</text>
+  <text x="337" y="992" fill="#8b949e" font-size="10">1. Go to repo main page</text>
+  <text x="337" y="1008" fill="#8b949e" font-size="10">2. Click + button → "Create new file"</text>
+  <text x="337" y="1024" fill="#8b949e" font-size="10">3. Name it: Week-01-Project.md</text>
+  <text x="337" y="1040" fill="#8b949e" font-size="10">4. Write your content</text>
+  <text x="337" y="1056" fill="#8b949e" font-size="10">5. Commit with clear message</text>
+  <text x="337" y="1072" fill="#8b949e" font-size="10">6. Done ✅</text>
+
+  <rect x="604" y="950" width="256" height="130" rx="8" fill="#161b22" stroke="#f0a500" stroke-width="1.5"/>
+  <text x="732" y="972" text-anchor="middle" fill="#f0a500" font-size="12" font-weight="700">KEYBOARD SHORTCUTS</text>
+  <text x="619" y="992" fill="#8b949e" font-size="10">Press T → file finder</text>
+  <text x="619" y="1008" fill="#8b949e" font-size="10">Press E → edit current file</text>
+  <text x="619" y="1024" fill="#f0a500" font-size="10" font-weight="600">Press . (period) → VS Code in browser</text>
+  <text x="619" y="1040" fill="#8b949e" font-size="10">Best for editing multiple files</text>
+  <text x="619" y="1056" fill="#8b949e" font-size="10">Commit message format:</text>
+  <text x="619" y="1072" fill="#8b949e" font-size="10">[Action] [File] — [What changed]</text>
+
+  <!-- ═══ SECTION 5: WEEKLY RHYTHM ═══ -->
+  <text x="450" y="1118" text-anchor="middle" fill="#8b949e" font-size="11" letter-spacing="3">──────────────────────────────────────────────────</text>
+  <text x="450" y="1138" text-anchor="middle" fill="#f0a500" font-size="15" font-weight="700" letter-spacing="1">WEEKLY RHYTHM — EVERY WEEK</text>
+
+  <rect x="40" y="1152" width="820" height="170" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Left column steps 1-5 -->
+  <text x="60" y="1176" fill="#58a6ff" font-size="11" font-weight="700">PREP (Fri/Sun)</text>
+  <text x="60" y="1196" fill="#e6edf3" font-size="10">① Review project from Career Asset Vault</text>
+  <text x="60" y="1213" fill="#e6edf3" font-size="10">② Open Claude/ChatGPT → paste Context Block</text>
+  <text x="60" y="1230" fill="#e6edf3" font-size="10">③ Use Retrospective Task Template</text>
+  <text x="60" y="1247" fill="#e6edf3" font-size="10">④ Iterate until carousel script feels right</text>
+  <text x="60" y="1264" fill="#e6edf3" font-size="10">⑤ Move to Canva → build slides</text>
+
+  <!-- Right column steps 6-10 -->
+  <text x="470" y="1176" fill="#3fb950" font-size="11" font-weight="700">PUBLISH (Mon/Tue)</text>
+  <text x="470" y="1196" fill="#e6edf3" font-size="10">⑥ Publish on LinkedIn (Mon/Tue morning SEA)</text>
+  <text x="470" y="1213" fill="#e6edf3" font-size="10">⑦ Post IG caption within 2 hours</text>
+  <text x="470" y="1230" fill="#e6edf3" font-size="10">⑧ Save work to GitHub (Week-XX file)</text>
+  <text x="470" y="1247" fill="#e6edf3" font-size="10">⑨ Update Skills.md if new skill shown</text>
+  <text x="470" y="1264" fill="#e6edf3" font-size="10">⑩ Add new prompts to Claude.md</text>
+
+  <!-- ═══ FOOTER ═══ -->
+  <rect x="0" y="1355" width="900" height="45" fill="#161b22"/>
+  <rect x="0" y="1355" width="900" height="3" fill="#f0a500"/>
+  <text x="450" y="1378" text-anchor="middle" fill="#8b949e" font-size="11">github.com/shahrizanihsan-source/shahs-portfolio  ·  Last updated: June 2026</text>
+  <text x="450" y="1394" text-anchor="middle" fill="#f0a500" font-size="10" font-weight="600">Shah's Portfolio — A Retrospective</text>
+
+</svg>
