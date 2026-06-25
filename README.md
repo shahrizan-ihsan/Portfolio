@@ -96,11 +96,3 @@ My work spanned **strategic partnerships, new market entry, operations, budget m
 ---
 
 *Last updated: June 2026*
-
-
-
----
-
-*Last updated: June 2026*
-
-
