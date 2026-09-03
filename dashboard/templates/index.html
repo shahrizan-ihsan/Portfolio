@@ -6,38 +6,74 @@
 <title>IT Support Dashboard</title>
 <style>
 :root {
-  --bg:#0f1117; --card:#1a1d27; --border:#2a2d3a; --text:#e2e8f0; --muted:#8892a4;
-  --green:#22c55e; --yellow:#f59e0b; --red:#ef4444; --blue:#3b82f6; --purple:#a855f7;
+  --bg:#0f1117; --card:#1a1d27; --card2:#1e2130; --border:#2a2d3a; --text:#e2e8f0; --muted:#8892a4;
+  --green:#22c55e; --yellow:#f59e0b; --red:#ef4444; --blue:#3b82f6; --purple:#a855f7; --orange:#f97316;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
 /* ── Header ── */
-.header{background:var(--card);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.header h1{font-size:17px;font-weight:700;color:var(--blue)}
-.header .meta{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:12px}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+.header h1{font-size:16px;font-weight:700;color:var(--blue);white-space:nowrap}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hdr-stat{background:var(--border);border-radius:99px;padding:3px 10px;font-size:12px;font-weight:600;white-space:nowrap}
+.hdr-stat.warn{background:#78350f33;color:var(--yellow);border:1px solid #d9770633}
+.hdr-stat.crit{background:#7f1d1d33;color:var(--red);border:1px solid #dc262633;animation:pulse 2s infinite}
+.hdr-stat.ok{color:var(--green)}
+#last-updated{color:var(--muted);font-size:11px;white-space:nowrap}
+
+/* ── RAM Alert Banner ── */
+#ram-banner{display:none;background:#7f1d1d33;border-bottom:1px solid #dc262655;padding:10px 18px;flex-shrink:0;animation:slideDown .3s ease}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.banner-inner{display:flex;align-items:center;gap:12px;max-width:1400px;margin:0 auto;flex-wrap:wrap}
+.banner-msg{flex:1;font-size:13px;color:#fca5a5;min-width:200px}
+.banner-msg strong{color:var(--red)}
+.banner-btns{display:flex;gap:8px;flex-shrink:0}
+.banner-btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600}
+.banner-btn.primary{background:var(--red);color:#fff}
+.banner-btn.dismiss{background:var(--border);color:var(--muted)}
+.banner-btn:hover{opacity:.8}
 
 /* ── Tab bar ── */
-.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{padding:10px 20px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s}
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.tab{padding:10px 18px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;flex-shrink:0}
 .tab:hover{color:var(--text)}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-badge{background:var(--yellow);color:#000;border-radius:99px;font-size:10px;font-weight:700;padding:1px 5px;margin-left:5px;vertical-align:middle}
 
 /* ── Main layout ── */
 .view{display:none;flex:1;overflow:hidden}
 .view.active{display:flex}
+.dash-view{overflow-y:auto;flex:1}
 
 /* ── Dashboard grid ── */
-.dash-view{overflow-y:auto;flex:1}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;padding:18px;max-width:1400px;margin:0 auto}
 .col-wide{grid-column:span 2}
-@media(max-width:650px){.col-wide{grid-column:span 1}}
+.col-full{grid-column:1/-1}
+@media(max-width:650px){.col-wide,.col-full{grid-column:span 1}}
 
 /* ── Cards ── */
 .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
 .card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-title .badge-live{margin-left:auto;font-size:10px;color:var(--green);text-transform:none;letter-spacing:0;font-weight:400}
+
+/* ── Health Checklist ── */
+.checklist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px}
+.check-item{border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;transition:all .2s;cursor:default}
+.check-item.ok{border-color:#16a34a33;background:#14532d11}
+.check-item.warning{border-color:#d9770633;background:#78350f11}
+.check-item.critical{border-color:#dc262633;background:#7f1d1d11;animation:pulse-border 2s infinite}
+@keyframes pulse-border{0%,100%{border-color:#dc262633}50%{border-color:#ef4444}}
+.check-icon{font-size:18px;flex-shrink:0}
+.check-body{min-width:0}
+.check-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.check-detail{font-size:12px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.check-item.ok .check-detail{color:var(--green)}
+.check-item.warning .check-detail{color:var(--yellow)}
+.check-item.critical .check-detail{color:var(--red)}
 
 /* ── Stat rows ── */
 .row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
@@ -48,10 +84,10 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 /* ── Gauges ── */
 .g-wrap{margin-bottom:11px}
 .g-head{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
-.g-track{height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.g-track{height:8px;background:var(--border);border-radius:99px;overflow:hidden}
 .g-fill{height:100%;border-radius:99px;transition:width .7s ease}
 .ok{background:var(--green)} .warn{background:var(--yellow)} .crit{background:var(--red)}
-.tok{color:var(--green)} .twarn{color:var(--yellow)} .tcrit{color:var(--red)} .tmuted{color:var(--muted)} .tblue{color:var(--blue)}
+.tok{color:var(--green)} .twarn{color:var(--yellow)} .tcrit{color:var(--red)} .tmuted{color:var(--muted)} .tblue{color:var(--blue)} .torange{color:var(--orange)}
 
 /* ── Alerts ── */
 .alert{padding:7px 11px;border-radius:7px;margin-bottom:7px;font-size:13px;line-height:1.4}
@@ -60,14 +96,24 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .a-crit{background:#7f1d1d22;border:1px solid #dc262644;color:var(--red)}
 .a-info{background:#1e3a5f22;border:1px solid #3b82f644;color:var(--blue)}
 
+/* ── Memory hogs table ── */
+.hog-table{width:100%;border-collapse:collapse}
+.hog-table th{color:var(--muted);font-size:10px;text-align:left;padding:3px 5px;text-transform:uppercase;letter-spacing:.5px}
+.hog-table td{padding:5px 5px;border-bottom:1px solid var(--border);font-size:12px}
+.hog-table tr:last-child td{border-bottom:none}
+.hog-name{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.hog-bar-wrap{width:80px}
+.hog-bar-track{height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.hog-bar-fill{height:100%;border-radius:99px;background:var(--blue)}
+.badge{display:inline-block;padding:1px 6px;border-radius:99px;font-size:10px;font-weight:600}
+.b-ok{background:#14532d33;color:var(--green)} .b-warn{background:#78350f33;color:var(--yellow)} .b-crit{background:#7f1d1d33;color:var(--red)}
+
 /* ── Process table ── */
 .ptable{width:100%;border-collapse:collapse}
 .ptable th{color:var(--muted);font-size:11px;text-align:left;padding:3px 5px;text-transform:uppercase}
 .ptable td{padding:4px 5px;border-bottom:1px solid var(--border);font-size:13px}
 .ptable tr:last-child td{border-bottom:none}
 .pname{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.badge{display:inline-block;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600}
-.b-ok{background:#14532d33;color:var(--green)} .b-warn{background:#78350f33;color:var(--yellow)} .b-crit{background:#7f1d1d33;color:var(--red)}
 
 /* ── Network ── */
 .nrow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
@@ -78,11 +124,22 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .btn{padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--border);color:var(--text);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
 .btn:hover{background:var(--blue);border-color:var(--blue);color:#fff}
 .btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.danger:hover{background:var(--red);border-color:var(--red)}
 .fix-result{margin-top:9px;font-size:12px;padding:7px 10px;border-radius:6px;display:none}
 
 /* ── Skeleton ── */
 .sk{background:linear-gradient(90deg,var(--border) 25%,#2f3347 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:5px;height:13px;margin-bottom:7px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── Monitor log ── */
+.mlog-entry{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.mlog-entry:last-child{border-bottom:none}
+.mlog-time{color:var(--muted);min-width:38px;font-family:monospace;font-size:12px;padding-top:1px}
+.mlog-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.dot-ok{background:var(--green)} .dot-fixed{background:var(--blue)} .dot-warning{background:var(--yellow)} .dot-error{background:var(--red)}
+.mlog-body{flex:1;min-width:0}
+.mlog-action{font-size:13px;font-weight:600;color:var(--text)}
+.mlog-detail{font-size:12px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ── Chat view ── */
 .chat-view{flex-direction:column;flex:1;overflow:hidden}
@@ -114,79 +171,142 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .welcome{text-align:center;margin:auto;padding:30px;color:var(--muted)}
 .welcome h2{color:var(--text);margin-bottom:8px;font-size:18px}
 .welcome p{margin-bottom:16px;font-size:14px}
+.token-note{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;padding:6px 10px;background:var(--border);border-radius:6px}
 
-/* ── Monitor log ── */
-.mlog-entry{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
-.mlog-entry:last-child{border-bottom:none}
-.mlog-time{color:var(--muted);min-width:38px;font-family:monospace;font-size:12px;padding-top:1px}
-.mlog-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
-.dot-ok{background:var(--green)} .dot-fixed{background:var(--blue)} .dot-warning{background:var(--yellow)} .dot-error{background:var(--red)}
-.mlog-body{flex:1;min-width:0}
-.mlog-action{font-size:13px;font-weight:600;color:var(--text)}
-.mlog-detail{font-size:12px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ── Tips & News view ── */
+.tips-view{flex-direction:column;flex:1;overflow-y:auto}
+.tips-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px;max-width:1400px;margin:0 auto}
+@media(max-width:700px){.tips-grid{grid-template-columns:1fr}}
+.tip-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px}
+.tip-of-hour{background:linear-gradient(135deg,#1e3a5f33,#1e2130);border:1px solid var(--blue)44;border-radius:10px;padding:18px;margin-bottom:14px}
+.tip-oh-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--blue);margin-bottom:8px}
+.tip-oh-text{font-size:14px;color:var(--text);line-height:1.6}
+.tip-oh-cat{margin-top:8px}
+.tip-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow-y:auto}
+.tip-item{padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);font-size:13px;line-height:1.5;color:var(--text)}
+.tip-item-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px}
+.news-list{display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto}
+.news-item{padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);cursor:pointer;transition:border-color .2s}
+.news-item:hover{border-color:var(--blue)88}
+.news-title{font-size:13px;color:var(--text);margin-bottom:4px;line-height:1.4}
+.news-meta{font-size:11px;color:var(--muted);display:flex;gap:10px}
+.news-empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 0}
+.news-loading{color:var(--muted);font-size:12px;text-align:center;padding:20px 0}
 </style>
 </head>
 <body>
 
+<!-- ── Header ── -->
 <div class="header">
   <h1>🖥️ IT Support Agent</h1>
-  <div class="meta">
-    <span><span class="dot"></span> Live</span>
+  <div class="live-badge"><span class="dot"></span> Live</div>
+  <div id="hdr-ram" class="hdr-stat tmuted">RAM —</div>
+  <div id="hdr-cpu" class="hdr-stat tmuted">CPU —</div>
+  <div id="hdr-uptime" class="hdr-stat tmuted" title="Time since last restart">⏱ —</div>
+  <div id="hdr-updates" class="hdr-stat tmuted" title="Windows Update status" style="display:none">📦</div>
+  <div class="header-right">
     <span id="last-updated">Loading…</span>
   </div>
 </div>
 
-<!-- Tab bar -->
+<!-- ── RAM Alert Banner ── -->
+<div id="ram-banner">
+  <div class="banner-inner">
+    <div class="banner-msg" id="banner-msg">🔴 <strong>RAM Critical</strong> — </div>
+    <div class="banner-btns">
+      <button class="banner-btn primary" onclick="quickFreeMemory()">🧠 Free Memory Now</button>
+      <button class="banner-btn dismiss" onclick="dismissBanner()">✕ Dismiss</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Tab bar ── -->
 <div class="tabs">
   <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
   <div class="tab" onclick="switchTab('chat')">💬 Chat with Agent</div>
+  <div class="tab" onclick="switchTab('tips')">💡 Tips &amp; News</div>
 </div>
 
-<!-- ── DASHBOARD VIEW ── -->
+<!-- ══ DASHBOARD VIEW ══ -->
 <div class="view dash-view active" id="view-dashboard">
 <div class="dash-view">
 <div class="grid">
 
+  <!-- Health Checklist (full width) -->
+  <div class="card col-full">
+    <div class="card-title"><span>✅</span> System Health
+      <span class="badge-live">● live</span>
+    </div>
+    <div id="checklist" class="checklist-grid">
+      <div class="sk" style="height:56px;border-radius:8px"></div>
+      <div class="sk" style="height:56px;border-radius:8px"></div>
+      <div class="sk" style="height:56px;border-radius:8px"></div>
+      <div class="sk" style="height:56px;border-radius:8px"></div>
+      <div class="sk" style="height:56px;border-radius:8px"></div>
+      <div class="sk" style="height:56px;border-radius:8px"></div>
+      <div class="sk" style="height:56px;border-radius:8px"></div>
+    </div>
+  </div>
+
+  <!-- Resource Gauges -->
+  <div class="card">
+    <div class="card-title"><span>📊</span> Resource Usage
+      <span class="badge-live">● updates every 5s</span>
+    </div>
+    <div id="gauges"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+  </div>
+
+  <!-- Memory Hogs -->
+  <div class="card">
+    <div class="card-title"><span>🧠</span> Memory Hogs
+      <span class="badge-live">● live</span>
+    </div>
+    <div id="memory-hogs"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
+  </div>
+
+  <!-- System Info -->
   <div class="card">
     <div class="card-title"><span>💻</span> System</div>
     <div id="sys-info"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   </div>
 
+  <!-- Battery & Uptime -->
   <div class="card">
-    <div class="card-title"><span>📊</span> Resource Usage</div>
-    <div id="gauges"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span>🔋</span> Battery & Uptime</div>
+    <div class="card-title"><span>🔋</span> Battery &amp; Uptime</div>
     <div id="battery"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
+  <!-- Alerts -->
   <div class="card">
     <div class="card-title"><span>🚨</span> Alerts</div>
     <div id="alerts"><div class="sk"></div></div>
   </div>
 
-  <div class="card">
+  <!-- Storage (wide) -->
+  <div class="card col-wide">
     <div class="card-title"><span>💾</span> Storage</div>
     <div id="storage"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
+  <!-- Security -->
   <div class="card">
     <div class="card-title"><span>🛡️</span> Security</div>
     <div id="security"><div class="sk"></div></div>
   </div>
 
+  <!-- Network (full width) -->
   <div class="card col-wide">
     <div class="card-title"><span>🌐</span> Network</div>
     <div id="network"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
+  <!-- Top Processes (full width) -->
   <div class="card col-wide">
-    <div class="card-title"><span>⚙️</span> Top Processes</div>
+    <div class="card-title"><span>⚙️</span> Top Processes (by CPU)</div>
     <div id="processes"><div class="sk"></div><div class="sk"></div></div>
   </div>
 
+  <!-- Quick Fixes -->
   <div class="card">
     <div class="card-title"><span>🔧</span> Quick Fixes</div>
     <div class="btn-grid">
@@ -198,24 +318,26 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     <div class="fix-result alert" id="fix-result"></div>
   </div>
 
+  <!-- Auto-Monitor (wide) -->
   <div class="card col-wide">
     <div class="card-title">
       <span>🤖</span> Auto-Monitor
-      <span id="monitor-badge" style="margin-left:auto;font-size:11px;color:var(--green);font-weight:normal;text-transform:none;letter-spacing:0">● active — checks every 5 min</span>
+      <span id="monitor-badge" class="badge-live">● active — checks every 5 min</span>
     </div>
     <div id="monitor-log"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div>
   </div>
 
+</div><!-- /grid -->
 </div>
-</div>
-</div>
+</div><!-- /view-dashboard -->
 
-<!-- ── CHAT VIEW ── -->
+<!-- ══ CHAT VIEW ══ -->
 <div class="view chat-view" id="view-chat">
   <div class="chat-messages" id="chat-messages">
     <div class="welcome">
       <h2>👋 IT Support Agent</h2>
       <p>Ask me anything about your laptop — I'll run real diagnostics and give you specific answers.</p>
+      <div class="token-note">💰 Tokens are only used when you send a message here. All monitoring &amp; health checks above run free.</div>
     </div>
   </div>
   <div class="quick-prompts">
@@ -227,6 +349,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     <span class="qp" onclick="sendQuick(this)">📋 Show recent errors</span>
     <span class="qp" onclick="sendQuick(this)">🌐 Check network</span>
     <span class="qp" onclick="sendQuick(this)">🔋 Check battery health</span>
+    <span class="qp" onclick="sendQuick(this)">🧠 What's eating my RAM?</span>
+    <span class="qp" onclick="sendQuick(this)">🔌 Fix USB-C port issues</span>
   </div>
   <div class="chat-input-bar">
     <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask about your laptop… (Enter to send, Shift+Enter for new line)"></textarea>
@@ -234,133 +358,249 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
   </div>
 </div>
 
+<!-- ══ TIPS & NEWS VIEW ══ -->
+<div class="view tips-view" id="view-tips">
+<div class="tips-grid">
+
+  <!-- IT Tips column -->
+  <div>
+    <div class="tip-of-hour" id="tip-of-hour">
+      <div class="tip-oh-label">💡 Tip of the Hour</div>
+      <div class="tip-oh-text">Loading…</div>
+    </div>
+    <div class="tip-card">
+      <div class="card-title"><span>📚</span> IT Tips &amp; Life Hacks</div>
+      <div class="tip-list" id="tip-list">
+        <div class="sk" style="height:60px"></div><div class="sk" style="height:60px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hacker News column -->
+  <div>
+    <div class="tip-card">
+      <div class="card-title"><span>📰</span> AI &amp; Tech News <span class="tmuted" style="text-transform:none;letter-spacing:0;font-weight:normal;margin-left:6px;font-size:11px">via Hacker News · zero tokens</span></div>
+      <div id="news-list" class="news-list">
+        <div class="news-loading">⏳ Fetching latest tech news…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
 <script>
+// ── Globals ───────────────────────────────────────────────────────────────────
+let _bannerDismissed = false;
+let _tipsFetched = false;
+const CHECK_INTERVAL = 5000;   // health-check + memory hogs every 5s
+const DASH_INTERVAL  = 10000;  // main dashboard every 10s
+const SEC_INTERVAL   = 120000;
+const MON_INTERVAL   = 30000;
+
 // ── Tab switching ─────────────────────────────────────────────────────────────
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === (name==='chat'?1:0)));
+  const names = ['dashboard', 'chat', 'tips'];
+  document.querySelectorAll('.tab').forEach((t, i) =>
+    t.classList.toggle('active', names[i] === name));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'tips' && !_tipsFetched) { _tipsFetched = true; fetchNewsTips(); }
 }
 
-// ── Dashboard helpers ─────────────────────────────────────────────────────────
-const gauge = (label, pct, unit='%') => {
-  const c = pct>90?'crit':pct>75?'warn':'ok', tc = pct>90?'tcrit':pct>75?'twarn':'tok';
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const gauge = (label, pct, unit = '%') => {
+  const c = pct > 90 ? 'crit' : pct > 75 ? 'warn' : 'ok';
+  const tc = pct > 90 ? 'tcrit' : pct > 75 ? 'twarn' : 'tok';
   return `<div class="g-wrap"><div class="g-head"><span>${label}</span><span class="${tc}">${pct}${unit}</span></div>
   <div class="g-track"><div class="g-fill ${c}" style="width:${Math.min(pct,100)}%"></div></div></div>`;
 };
-const row = (l,v) => `<div class="row"><span class="row-label">${l}</span><span class="row-val">${v}</span></div>`;
+const row  = (l, v) => `<div class="row"><span class="row-label">${l}</span><span class="row-val">${v}</span></div>`;
+const err  = msg => `<div class="alert a-warn">⚠️ ${msg}</div>`;
+const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
+// ── Health Checklist ──────────────────────────────────────────────────────────
+const CHECK_ICON = { ok: '✅', warning: '⚠️', critical: '❌' };
+
+function renderChecklist(data) {
+  const list = data.checklist || [];
+  if (!list.length) return;
+
+  document.getElementById('checklist').innerHTML = list.map(item => `
+    <div class="check-item ${item.status}" title="${esc(item.detail)}">
+      <span class="check-icon">${CHECK_ICON[item.status] || '❓'}</span>
+      <div class="check-body">
+        <div class="check-label">${esc(item.label)}</div>
+        <div class="check-detail">${esc(item.detail)}</div>
+      </div>
+    </div>`).join('');
+
+  // Update header badges
+  const ram = list.find(i => i.id === 'ram');
+  const cpu = list.find(i => i.id === 'cpu');
+  const upt = list.find(i => i.id === 'uptime');
+  const upd = list.find(i => i.id === 'updates');
+
+  if (ram) {
+    const el = document.getElementById('hdr-ram');
+    el.textContent = `RAM ${ram.detail}`;
+    el.className = `hdr-stat ${ram.status === 'critical' ? 'crit' : ram.status === 'warning' ? 'warn' : 'ok'}`;
+  }
+  if (cpu) {
+    const el = document.getElementById('hdr-cpu');
+    el.textContent = `CPU ${cpu.detail}`;
+    el.className = `hdr-stat ${cpu.status === 'critical' ? 'crit' : cpu.status === 'warning' ? 'warn' : 'ok'}`;
+  }
+  if (upt) {
+    const el = document.getElementById('hdr-uptime');
+    el.textContent = `⏱ ${upt.detail.split('—')[0].trim()}`;
+    el.title = upt.detail;
+    el.className = `hdr-stat ${upt.status === 'critical' ? 'crit' : upt.status === 'warning' ? 'warn' : 'tmuted'}`;
+  }
+  if (upd && (upd.status === 'warning')) {
+    const el = document.getElementById('hdr-updates');
+    el.textContent = `📦 ${upd.detail}`;
+    el.className = 'hdr-stat warn';
+    el.style.display = '';
+  }
+
+  // RAM banner
+  if (ram && ram.status === 'critical' && !_bannerDismissed) {
+    showBanner(data);
+  } else if (ram && ram.status !== 'critical') {
+    hideBanner();
+    _bannerDismissed = false;
+  }
+}
+
+function showBanner(data) {
+  const banner = document.getElementById('ram-banner');
+  banner.style.display = 'block';
+  // Fetch hogs for banner message
+  fetch('/api/memory-hogs').then(r => r.json()).then(d => {
+    const top = (d.processes || []).slice(0, 3);
+    const hogStr = top.length
+      ? top.map(p => `${esc(p.name)} (${p.mem_mb}MB)`).join(', ')
+      : 'multiple processes';
+    document.getElementById('banner-msg').innerHTML =
+      `🔴 <strong>RAM Critical: ${data.ram_pct || ''}%</strong> — Top hogs: ${hogStr} &nbsp;·&nbsp; Close some apps or free memory below`;
+  }).catch(() => {
+    document.getElementById('banner-msg').innerHTML = `🔴 <strong>RAM Critical</strong> — Use "Free Memory" button or close unused apps`;
+  });
+}
+
+function hideBanner() {
+  document.getElementById('ram-banner').style.display = 'none';
+}
+
+function dismissBanner() {
+  _bannerDismissed = true;
+  hideBanner();
+}
+
+async function quickFreeMemory() {
+  try {
+    await fetch('/api/fix/free_memory', { method: 'POST' });
+    fetchHealth();
+  } catch(e) {}
+}
+
+// ── Memory Hogs ───────────────────────────────────────────────────────────────
+function renderMemoryHogs(data) {
+  const procs = data.processes || [];
+  const totalMb = (data.total_ram_gb || 0) * 1024;
+  const el = document.getElementById('memory-hogs');
+  if (!procs.length) {
+    el.innerHTML = err(data.error || 'No data');
+    return;
+  }
+  const maxMb = Math.max(...procs.map(p => p.mem_mb), 1);
+  el.innerHTML = `<table class="hog-table">
+    <thead><tr><th>Process</th><th>RAM</th><th>MB</th><th>Type</th></tr></thead>
+    <tbody>` +
+    procs.map(p => {
+      const pct = totalMb ? Math.round((p.mem_mb / totalMb) * 100) : 0;
+      const barW = Math.round((p.mem_mb / maxMb) * 100);
+      return `<tr>
+        <td><span class="hog-name" title="${esc(p.name)}">${esc(p.name)}</span></td>
+        <td><div class="hog-bar-wrap"><div class="hog-bar-track"><div class="hog-bar-fill" style="width:${barW}%"></div></div></div></td>
+        <td class="tmuted" style="white-space:nowrap">${p.mem_mb} MB</td>
+        <td><span class="badge ${p.cls||'b-ok'}" title="${esc(p.action||'')}">${esc(p.tag||'—')}</span></td>
+      </tr>`;
+    }).join('') + `</tbody></table>`;
+}
+
+// ── Main dashboard render ─────────────────────────────────────────────────────
 function renderDash(d) {
-  const s = d.system||{}, pr = d.processes||{}, st = d.storage||{}, n = d.network||{};
+  const s = d.system || {}, pr = d.processes || {}, st = d.storage || {}, n = d.network || {};
 
-  // System info
   document.getElementById('sys-info').innerHTML = s.error ? err(s.error) :
-    row('OS', `${s.os||''} ${s.os_release||''}`) +
-    row('Hostname', s.hostname||'—') +
-    row('CPU Cores', `${s.cpu_count_physical||'?'} physical / ${s.cpu_count_logical||'?'} logical`) +
-    row('RAM', `${s.ram_used_gb||0} / ${s.ram_total_gb||0} GB`);
+    row('OS', `${s.os || ''} ${s.os_release || ''}`) +
+    row('Hostname', s.hostname || '—') +
+    row('CPU Cores', `${s.cpu_count_physical || '?'} physical / ${s.cpu_count_logical || '?'} logical`) +
+    row('RAM', `${s.ram_used_gb || 0} / ${s.ram_total_gb || 0} GB`);
 
-  // Gauges
   document.getElementById('gauges').innerHTML = s.error ? err(s.error) :
-    gauge('CPU', s.cpu_usage_avg||0) +
-    gauge('RAM', s.ram_percent||0) +
-    gauge('Swap', s.swap_percent||0) +
-    (s.disks||[]).map(d=>gauge(`Disk ${d.mountpoint}`, d.percent)).join('');
+    gauge('CPU', s.cpu_usage_avg || 0) +
+    gauge('RAM', s.ram_percent || 0) +
+    gauge('Swap', s.swap_percent || 0) +
+    (s.disks || []).map(dk => gauge(`Disk ${dk.mountpoint}`, dk.percent)).join('');
 
-  // Battery & uptime
   let batt = s.battery;
   document.getElementById('battery').innerHTML = s.error ? err(s.error) :
-    row('Uptime', s.uptime||'—') +
-    row('Boot time', s.boot_time||'—') +
-    (batt ? row('Battery', `<span class="${!batt.plugged_in&&batt.percent<20?'tcrit':!batt.plugged_in&&batt.percent<40?'twarn':'tok'}">${batt.plugged_in?'🔌':'🔋'} ${batt.percent}% — ${batt.time_remaining}</span>`) : row('Battery','<span class="tmuted">No battery</span>'));
+    row('Uptime', s.uptime || '—') +
+    row('Boot time', s.boot_time || '—') +
+    (batt ? row('Battery', `<span class="${!batt.plugged_in && batt.percent < 20 ? 'tcrit' : !batt.plugged_in && batt.percent < 40 ? 'twarn' : 'tok'}">${batt.plugged_in ? '🔌' : '🔋'} ${batt.percent}% — ${batt.time_remaining}</span>`) : row('Battery', '<span class="tmuted">No battery</span>'));
 
-  // Alerts
-  const al = s.alerts||[];
+  const al = s.alerts || [];
   document.getElementById('alerts').innerHTML = !al.length
     ? `<div class="alert a-ok">✅ No alerts — system healthy</div>`
-    : al.map(a=>`<div class="alert ${a.includes('❌')?'a-crit':'a-warn'}">${a}</div>`).join('');
+    : al.map(a => `<div class="alert ${a.includes('❌') ? 'a-crit' : 'a-warn'}">${a}</div>`).join('');
 
-  // Storage
   document.getElementById('storage').innerHTML = st.error ? err(st.error) :
-    (st.partitions||[]).map(p=>`<div style="margin-bottom:12px">
-      <div class="g-head"><span>💿 ${p.device} <span class="tmuted">(${p.mountpoint})</span></span>
-      <span class="${p.percent_used>90?'tcrit':p.percent_used>80?'twarn':'tok'}">${p.percent_used}%</span></div>
-      <div class="g-track"><div class="g-fill ${p.percent_used>90?'crit':p.percent_used>80?'warn':'ok'}" style="width:${p.percent_used}%"></div></div>
+    (st.partitions || []).map(p => `<div style="margin-bottom:12px">
+      <div class="g-head"><span>💿 ${esc(p.device)} <span class="tmuted">(${esc(p.mountpoint)})</span></span>
+      <span class="${p.percent_used > 90 ? 'tcrit' : p.percent_used > 80 ? 'twarn' : 'tok'}">${p.percent_used}%</span></div>
+      <div class="g-track"><div class="g-fill ${p.percent_used > 90 ? 'crit' : p.percent_used > 80 ? 'warn' : 'ok'}" style="width:${p.percent_used}%"></div></div>
       <div style="font-size:11px;color:var(--muted);margin-top:3px">${p.used_gb} GB used · ${p.free_gb} GB free</div>
     </div>`).join('') +
-    `<div style="margin-top:10px">${Object.entries(st.temp_sizes||{}).map(([k,v])=>row(k.replace(/_/g,' '),`<span class="tmuted">${v.size}</span>`)).join('')}</div>`;
+    `<div style="margin-top:10px">${Object.entries(st.temp_sizes || {}).map(([k, v]) => row(k.replace(/_/g, ' '), `<span class="tmuted">${v.size}</span>`)).join('')}</div>`;
 
-  // Network
-  const conns = n.established_connections||[];
+  const conns = n.established_connections || [];
   document.getElementById('network').innerHTML = n.error ? err(n.error) : (
     (n.suspicious_connections?.length ? `<div class="alert a-crit" style="margin-bottom:10px">❌ ${n.suspicious_connections.length} suspicious connection(s)!</div>` : '') +
     (!conns.length ? `<div class="alert a-ok">✅ No active outbound connections</div>` :
       `<div class="tmuted" style="font-size:11px;margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px">${conns.length} connections</div>` +
-      conns.slice(0,10).map(c=>`<div class="nrow"><span class="tblue">${c.process||'?'}</span><span class="tmuted" style="font-family:monospace">${c.local||''} → ${c.remote||''}</span></div>`).join('')) +
-    (n.dns_servers?.length ? `<div style="margin-top:8px">${row('DNS',n.dns_servers.join(' / '))}</div>` : '')
+      conns.slice(0, 10).map(c => `<div class="nrow"><span class="tblue">${esc(c.process || '?')}</span><span class="tmuted" style="font-family:monospace">${c.local || ''} → ${c.remote || ''}</span></div>`).join('')) +
+    (n.dns_servers?.length ? `<div style="margin-top:8px">${row('DNS', n.dns_servers.join(' / '))}</div>` : '')
   );
 
-  // Processes
-  const ps = pr.top_processes||[];
+  const ps = pr.top_processes || [];
   document.getElementById('processes').innerHTML = !ps.length ? `<div class="alert a-info">No data</div>` :
     `<table class="ptable"><thead><tr><th>Process</th><th>CPU</th><th>Memory</th><th>User</th><th>PID</th></tr></thead><tbody>` +
-    ps.map(p=>`<tr>
-      <td><span class="pname" title="${p.cmdline}">${p.name}</span></td>
-      <td><span class="badge ${p.cpu_percent>50?'b-crit':p.cpu_percent>20?'b-warn':'b-ok'}">${p.cpu_percent.toFixed(1)}%</span></td>
-      <td><span class="badge ${p.mem_percent>10?'b-warn':'b-ok'}">${p.mem_percent.toFixed(1)}%</span></td>
-      <td class="tmuted">${p.user||''}</td><td class="tmuted">${p.pid}</td>
+    ps.map(p => `<tr>
+      <td><span class="pname" title="${esc(p.cmdline)}">${esc(p.name)}</span></td>
+      <td><span class="badge ${p.cpu_percent > 50 ? 'b-crit' : p.cpu_percent > 20 ? 'b-warn' : 'b-ok'}">${p.cpu_percent.toFixed(1)}%</span></td>
+      <td><span class="badge ${p.mem_percent > 10 ? 'b-warn' : 'b-ok'}">${p.mem_percent.toFixed(1)}%</span></td>
+      <td class="tmuted">${esc(p.user || '')}</td><td class="tmuted">${p.pid}</td>
     </tr>`).join('') + `</tbody></table>`;
 
   document.getElementById('last-updated').textContent = `Updated: ${d.last_updated}`;
 }
 
 function renderSecurity(d) {
-  const safe = !d.suspicious_processes?.length && !d.warnings?.filter(w=>w.severity==='high').length;
+  const safe = !d.suspicious_processes?.length && !d.warnings?.filter(w => w.severity === 'high').length;
   document.getElementById('security').innerHTML = (d.error ? err(d.error) :
-    `<div style="font-weight:600;margin-bottom:10px;${safe?'color:var(--green)':'color:var(--yellow)'}">${d.summary}</div>` +
-    (d.suspicious_processes||[]).map(p=>`<div class="alert a-crit">❌ PID ${p.pid}: <b>${p.name}</b> — ${p.reason}</div>`).join('') +
-    (d.warnings||[]).map(w=>`<div class="alert ${w.severity==='high'?'a-crit':'a-info'}">${w.detail}</div>`).join('') +
-    row('Open ports', d.open_ports?.length||0) +
-    row('Cron jobs', d.cron_jobs?.length||0));
+    `<div style="font-weight:600;margin-bottom:10px;${safe ? 'color:var(--green)' : 'color:var(--yellow)'}">${d.summary}</div>` +
+    (d.suspicious_processes || []).map(p => `<div class="alert a-crit">❌ PID ${p.pid}: <b>${esc(p.name)}</b> — ${esc(p.reason)}</div>`).join('') +
+    (d.warnings || []).map(w => `<div class="alert ${w.severity === 'high' ? 'a-crit' : 'a-info'}">${esc(w.detail)}</div>`).join('') +
+    row('Open ports', d.open_ports?.length || 0) +
+    row('Cron jobs', d.cron_jobs?.length || 0));
 }
 
-const err = msg => `<div class="alert a-warn">⚠️ ${msg}</div>`;
-
-async function fetchDash() {
-  try {
-    const r = await fetch('/api/all');
-    renderDash(await r.json());
-  } catch(e){}
-}
-async function fetchSec() {
-  try {
-    const r = await fetch('/api/security');
-    renderSecurity(await r.json());
-  } catch(e){}
-}
-
-async function fix(type) {
-  const btn = event.target;
-  btn.disabled=true; btn.textContent='⏳ Running…';
-  const el = document.getElementById('fix-result');
-  el.style.display='none';
-  try {
-    const r = await fetch(`/api/fix/${type}`,{method:'POST'});
-    const d = await r.json();
-    el.style.display='block';
-    el.className = `fix-result alert ${d.success?'a-ok':'a-warn'}`;
-    el.innerHTML = d.success ? `✅ Done!${d.freed_mb?' Freed '+d.freed_mb+' MB.':''} ${d.note||''}` : `⚠️ ${d.error||d.note||'Failed'}`;
-    if(d.success) fetchDash();
-  } catch(e) {
-    el.style.display='block'; el.className='fix-result alert a-crit'; el.innerHTML='❌ Request failed';
-  }
-  btn.disabled=false; btn.textContent=btn.dataset.label||btn.textContent.replace('⏳ Running…','');
-  setTimeout(()=>{el.style.display='none'},6000);
-}
-
-// ── Auto-monitor log ──────────────────────────────────────────────────────────
-const SEV_DOT = {ok:'dot-ok', fixed:'dot-fixed', warning:'dot-warning', error:'dot-error'};
-const SEV_COL = {ok:'tok', fixed:'tblue', warning:'twarn', error:'tcrit'};
+// ── Monitor log ───────────────────────────────────────────────────────────────
+const SEV_DOT = { ok: 'dot-ok', fixed: 'dot-fixed', warning: 'dot-warning', error: 'dot-error' };
+const SEV_COL = { ok: 'tok', fixed: 'tblue', warning: 'twarn', error: 'tcrit' };
 
 function renderMonitor(d) {
   const log = d.log || [];
@@ -369,15 +609,98 @@ function renderMonitor(d) {
     el.innerHTML = '<div class="alert a-info" style="font-size:12px">Monitor started — first check in ~20 seconds…</div>';
     return;
   }
-  el.innerHTML = log.slice(0, 10).map(e => `
+  el.innerHTML = log.slice(0, 12).map(e => `
     <div class="mlog-entry">
       <span class="mlog-time">${e.time}</span>
-      <span class="mlog-dot ${SEV_DOT[e.severity]||'dot-ok'}"></span>
+      <span class="mlog-dot ${SEV_DOT[e.severity] || 'dot-ok'}"></span>
       <div class="mlog-body">
-        <div class="mlog-action ${SEV_COL[e.severity]||'tok'}">${e.action}</div>
-        <div class="mlog-detail">${e.detail}</div>
+        <div class="mlog-action ${SEV_COL[e.severity] || 'tok'}">${esc(e.action)}</div>
+        <div class="mlog-detail">${esc(e.detail)}</div>
       </div>
     </div>`).join('');
+}
+
+// ── Tips & News ───────────────────────────────────────────────────────────────
+function renderNewsTips(d) {
+  // Tip of the hour
+  const tot = d.tip_of_hour;
+  if (tot) {
+    document.getElementById('tip-of-hour').innerHTML = `
+      <div class="tip-oh-label">💡 Tip of the Hour</div>
+      <div class="tip-oh-text">${esc(tot.tip)}</div>
+      <div class="tip-oh-cat"><span class="badge b-ok">${esc(tot.category)}</span></div>`;
+  }
+
+  // Tip list
+  const tips = (d.tips || []).filter(t => t.tip !== (tot && tot.tip));
+  document.getElementById('tip-list').innerHTML = tips.length
+    ? tips.map(t => `<div class="tip-item">
+        <div class="tip-item-cat">${esc(t.category)}</div>
+        ${esc(t.tip)}
+      </div>`).join('')
+    : '<div class="news-empty">No tips available</div>';
+
+  // News list
+  const stories = d.stories || [];
+  document.getElementById('news-list').innerHTML = stories.length
+    ? stories.map(s => `<div class="news-item" onclick="window.open('${s.url}','_blank')">
+        <div class="news-title">${esc(s.title)}</div>
+        <div class="news-meta">
+          <span>⬆️ ${s.score}</span>
+          <span>💬 ${s.comments}</span>
+        </div>
+      </div>`).join('')
+    : '<div class="news-empty">📡 No tech stories loaded yet — check your internet connection</div>';
+}
+
+// ── Fix buttons ───────────────────────────────────────────────────────────────
+async function fix(type) {
+  const btn = event.target;
+  const originalText = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Running…';
+  const el = document.getElementById('fix-result');
+  el.style.display = 'none';
+  try {
+    const r = await fetch(`/api/fix/${type}`, { method: 'POST' });
+    const d = await r.json();
+    el.style.display = 'block';
+    el.className = `fix-result alert ${d.success ? 'a-ok' : 'a-warn'}`;
+    el.innerHTML = d.success ? `✅ Done!${d.freed_mb ? ' Freed ' + d.freed_mb + ' MB.' : ''} ${d.note || ''}` : `⚠️ ${d.error || d.note || 'Failed'}`;
+    if (d.success) { fetchDash(); fetchHealth(); }
+  } catch(e) {
+    el.style.display = 'block'; el.className = 'fix-result alert a-crit'; el.innerHTML = '❌ Request failed';
+  }
+  btn.disabled = false; btn.textContent = originalText;
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+// ── API fetch functions ───────────────────────────────────────────────────────
+async function fetchDash() {
+  try {
+    const r = await fetch('/api/all');
+    renderDash(await r.json());
+  } catch(e) {}
+}
+
+async function fetchSec() {
+  try {
+    const r = await fetch('/api/security');
+    renderSecurity(await r.json());
+  } catch(e) {}
+}
+
+async function fetchHealth() {
+  try {
+    const r = await fetch('/api/health-check');
+    renderChecklist(await r.json());
+  } catch(e) {}
+}
+
+async function fetchMemoryHogs() {
+  try {
+    const r = await fetch('/api/memory-hogs');
+    renderMemoryHogs(await r.json());
+  } catch(e) {}
 }
 
 async function fetchMonitor() {
@@ -387,12 +710,22 @@ async function fetchMonitor() {
   } catch(e) {}
 }
 
+async function fetchNewsTips() {
+  try {
+    document.getElementById('news-list').innerHTML = '<div class="news-loading">⏳ Fetching latest tech news…</div>';
+    const r = await fetch('/api/news-tips');
+    renderNewsTips(await r.json());
+  } catch(e) {
+    document.getElementById('news-list').innerHTML = '<div class="news-empty">⚠️ Could not load news — check internet connection</div>';
+  }
+}
+
 // ── Chat ──────────────────────────────────────────────────────────────────────
 let chatMessages = [];
 let isStreaming = false;
 
 function sendQuick(el) {
-  const text = el.textContent.replace(/^[^\w]+/,'').trim();
+  const text = el.textContent.replace(/^[^\w]+/, '').trim();
   document.getElementById('chat-input').value = text;
   switchTab('chat');
   sendMessage();
@@ -402,9 +735,9 @@ const chatEl = () => document.getElementById('chat-messages');
 
 function appendMsg(role, html) {
   const welcome = chatEl().querySelector('.welcome');
-  if(welcome) welcome.remove();
+  if (welcome) welcome.remove();
   const div = document.createElement('div');
-  div.className = role==='user' ? 'msg msg-user' : 'msg msg-agent';
+  div.className = role === 'user' ? 'msg msg-user' : 'msg msg-agent';
   div.innerHTML = html;
   chatEl().appendChild(div);
   chatEl().scrollTop = chatEl().scrollHeight;
@@ -415,116 +748,117 @@ function showTool(name) {
   const div = document.createElement('div');
   div.className = 'tool-indicator';
   div.id = 'tool-running';
-  div.innerHTML = `<span class="spinner"></span> Running <code>${name}</code>…`;
+  div.innerHTML = `<span class="spinner"></span> Running <code>${esc(name)}</code>…`;
   chatEl().appendChild(div);
   chatEl().scrollTop = chatEl().scrollHeight;
 }
 
 function removeTool() {
   const el = document.getElementById('tool-running');
-  if(el) el.remove();
+  if (el) el.remove();
 }
 
 function mdToHtml(text) {
   return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/```([\s\S]*?)```/g, (_,c)=>`<pre>${c.trim()}</pre>`)
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
-    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
-    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
-    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
-    .replace(/^\| (.+) \|$/gm, (_,row) => {
-      if(/^[-| ]+$/.test(row)) return '';
-      return '<tr>'+row.split('|').map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>';
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/```([\s\S]*?)```/g, (_, c) => `<pre>${c.trim()}</pre>`)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/^\| (.+) \|$/gm, (_, r) => {
+      if (/^[-| ]+$/.test(r)) return '';
+      return '<tr>' + r.split('|').map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
     })
     .replace(/(<tr>[\s\S]*?<\/tr>)/g, t => `<table>${t}</table>`)
-    .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>[\s\S]*?<\/li>)/g, l=>`<ul>${l}</ul>`)
-    .replace(/\n\n/g,'<br><br>')
-    .replace(/\n/g,'<br>');
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)/g, l => `<ul>${l}</ul>`)
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
 }
 
 async function sendMessage() {
-  if(isStreaming) return;
+  if (isStreaming) return;
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
-  if(!text) return;
+  if (!text) return;
 
-  input.value='';
-  input.style.height='auto';
-  isStreaming=true;
-  document.getElementById('send-btn').disabled=true;
+  input.value = '';
+  input.style.height = 'auto';
+  isStreaming = true;
+  document.getElementById('send-btn').disabled = true;
 
-  appendMsg('user', text.replace(/</g,'&lt;'));
-  chatMessages.push({role:'user', content:text});
+  appendMsg('user', text.replace(/</g, '&lt;'));
+  chatMessages.push({ role: 'user', content: text });
 
   const agentDiv = appendMsg('agent', '<span class="spinner"></span>');
   let agentText = '';
 
   try {
     const res = await fetch('/api/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({messages: chatMessages})
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatMessages })
     });
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
 
-    while(true) {
-      const {done, value} = await reader.read();
-      if(done) break;
-      buffer += decoder.decode(value, {stream:true});
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
       buffer = lines.pop();
 
-      for(const line of lines) {
-        if(!line.startsWith('data: ')) continue;
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
         try {
           const ev = JSON.parse(line.slice(6));
-          if(ev.type === 'text') {
+          if (ev.type === 'text') {
             agentText += ev.text;
             agentDiv.innerHTML = mdToHtml(agentText);
             chatEl().scrollTop = chatEl().scrollHeight;
-          } else if(ev.type === 'tool') {
-            removeTool();
-            showTool(ev.name);
-          } else if(ev.type === 'done') {
+          } else if (ev.type === 'tool') {
+            removeTool(); showTool(ev.name);
+          } else if (ev.type === 'done') {
             removeTool();
           }
         } catch(e) {}
       }
     }
-
-    chatMessages.push({role:'assistant', content: agentText});
+    chatMessages.push({ role: 'assistant', content: agentText });
   } catch(e) {
     agentDiv.innerHTML = `<span class="tcrit">❌ Connection error. Is ANTHROPIC_API_KEY set?</span>`;
   }
 
-  isStreaming=false;
-  document.getElementById('send-btn').disabled=false;
+  isStreaming = false;
+  document.getElementById('send-btn').disabled = false;
   input.focus();
 }
 
-// Enter to send
 document.getElementById('chat-input').addEventListener('keydown', e => {
-  if(e.key==='Enter' && !e.shiftKey){e.preventDefault();sendMessage();}
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
-// Auto-resize textarea
-document.getElementById('chat-input').addEventListener('input', function(){
-  this.style.height='auto';
-  this.style.height=Math.min(this.scrollHeight,120)+'px';
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 fetchDash();
 fetchSec();
+fetchHealth();
+fetchMemoryHogs();
 fetchMonitor();
-setInterval(fetchDash, 10000);
-setInterval(fetchSec, 120000);
-setInterval(fetchMonitor, 30000);
+
+setInterval(fetchHealth,      CHECK_INTERVAL);   // every 5s
+setInterval(fetchMemoryHogs,  CHECK_INTERVAL);   // every 5s
+setInterval(fetchDash,        DASH_INTERVAL);    // every 10s
+setInterval(fetchSec,         SEC_INTERVAL);     // every 2 min
+setInterval(fetchMonitor,     MON_INTERVAL);     // every 30s
 </script>
 </body>
 </html>

@@ -2,9 +2,11 @@
 
 import json
 import os
+import platform
 import sys
 import threading
 import time as _time
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from datetime import datetime
 
@@ -56,7 +58,7 @@ def _get(key, fn, *args, ttl=30, **kwargs):
 # ── Auto-heal monitor ──────────────────────────────────────────────────────────
 _monitor_log: list = []
 _monitor_lock = threading.Lock()
-_last_clear: dict = {}       # throttle: key → timestamp of last fix
+_last_clear: dict = {}
 _last_security_ts: float = 0.0
 _last_routine_ts: float = 0.0
 
@@ -70,13 +72,132 @@ def _log_monitor(action: str, detail: str, severity: str = "ok"):
     }
     with _monitor_lock:
         _monitor_log.insert(0, entry)
-        del _monitor_log[40:]  # keep last 40 entries
+        del _monitor_log[40:]
+
+
+# ── IT Tips (offline, zero tokens) ────────────────────────────────────────────
+_IT_TIPS = [
+    {"tip": "Restart your laptop weekly — it flushes RAM, installs updates, and clears temp files.", "category": "Performance"},
+    {"tip": "Keep at least 15% disk free — Windows needs space for swap and update temp files.", "category": "Storage"},
+    {"tip": "Disable startup programs via Task Manager → Startup tab to speed up boot time.", "category": "Performance"},
+    {"tip": "Run 'powercfg /batteryreport' in CMD to get a full battery health PDF report.", "category": "Battery"},
+    {"tip": "Enable Storage Sense (Settings → System → Storage) to auto-clean temp files.", "category": "Storage"},
+    {"tip": "Sort installed apps by Size (Settings → Apps) to find and remove space hogs.", "category": "Storage"},
+    {"tip": "Use Task Manager → Performance tab to see real-time CPU, RAM, and disk graphs.", "category": "Monitoring"},
+    {"tip": "Set Windows Update Active Hours so updates don't interrupt your work.", "category": "Updates"},
+    {"tip": "Free tool: CrystalDiskInfo checks your HDD/SSD SMART health data instantly.", "category": "Tools"},
+    {"tip": "Enable BitLocker on C: drive to protect data if your laptop is lost or stolen.", "category": "Security"},
+    {"tip": "Keep GPU drivers updated — AMD/NVIDIA releases fixes for crashes and performance.", "category": "Drivers"},
+    {"tip": "Chrome memory saver (Settings → Performance) reduces RAM for background tabs.", "category": "Performance"},
+    {"tip": "Run 'sfc /scannow' in admin CMD to find and repair corrupted Windows system files.", "category": "Maintenance"},
+    {"tip": "Unplug and reseat RAM sticks if you get random BSODs — oxidation causes instability.", "category": "Hardware"},
+    {"tip": "USB-C ports collect lint — clean with a toothpick if charging or data stops working.", "category": "Hardware"},
+    {"tip": "Use 'msconfig → Boot → Advanced Options' to confirm you're using all CPU cores.", "category": "Performance"},
+    {"tip": "Windows Defender is now excellent — you likely don't need third-party antivirus.", "category": "Security"},
+    {"tip": "Set your power plan to 'Balanced' to extend battery life without hurting performance.", "category": "Battery"},
+]
+
+# ── News and updates caches ────────────────────────────────────────────────────
+_news_cache: dict = {}
+_updates_cache: dict = {}
+
+# ── Process categorisation for memory hogs ────────────────────────────────────
+_PROC_BROWSER = {'chrome', 'msedge', 'firefox', 'opera', 'brave', 'vivaldi', 'iexplore'}
+_PROC_SYSTEM  = {'system', 'svchost', 'lsass', 'wininit', 'csrss', 'smss', 'services',
+                 'registry', 'dwm', 'winlogon', 'explorer', 'ntoskrnl', 'audiodg', 'rundll32'}
+_PROC_HEAVY   = {'discord', 'teams', 'slack', 'zoom', 'skype', 'spotify', 'steam',
+                 'onedrive', 'dropbox', 'antimalware service executable', 'msmpeng',
+                 'searchindexer', 'backgroundtaskhost'}
+
+
+def _categorize_proc(name: str) -> dict:
+    n = (name or "").lower().replace(".exe", "")
+    if n in _PROC_SYSTEM:
+        return {"tag": "System", "cls": "b-ok", "action": "Do not close"}
+    if n in _PROC_BROWSER:
+        return {"tag": "Browser", "cls": "b-warn", "action": "Close unused tabs"}
+    if n in _PROC_HEAVY:
+        return {"tag": "Closeable", "cls": "b-crit", "action": f"Safe to close {name}"}
+    return {"tag": "App", "cls": "b-ok", "action": "Check before closing"}
+
+
+def _get_hn_stories(limit: int = 8) -> list:
+    """Fetch Hacker News top stories filtered for IT/AI topics (cached 1h, zero tokens)."""
+    now = _time.time()
+    if _news_cache.get("ts", 0) and now - _news_cache["ts"] < 3600:
+        return _news_cache.get("stories", [])
+
+    keywords = {
+        "ai", "ml", "gpt", "llm", "windows", "linux", "security", "hack",
+        "privacy", "gpu", "cpu", "laptop", "performance", "python", "cloud",
+        "network", "cyber", "apple", "microsoft", "software", "tool", "open source",
+    }
+    try:
+        with urllib.request.urlopen(
+            "https://hacker-news.firebaseio.com/v0/topstories.json", timeout=5
+        ) as r:
+            ids = json.loads(r.read())[:60]
+
+        stories = []
+        for sid in ids:
+            if len(stories) >= limit:
+                break
+            try:
+                with urllib.request.urlopen(
+                    f"https://hacker-news.firebaseio.com/v0/item/{sid}.json", timeout=3
+                ) as r:
+                    item = json.loads(r.read())
+                title = (item.get("title") or "").lower()
+                if any(k in title for k in keywords):
+                    stories.append({
+                        "title": item.get("title", ""),
+                        "url":   item.get("url") or f"https://news.ycombinator.com/item?id={sid}",
+                        "score": item.get("score", 0),
+                        "comments": item.get("descendants", 0),
+                    })
+            except Exception:
+                continue
+        _news_cache.update({"ts": now, "stories": stories})
+        return stories
+    except Exception:
+        return _news_cache.get("stories", [])
+
+
+def _check_windows_updates() -> dict:
+    """Check last Windows update date via registry (fast, no COM, cached 10 min)."""
+    now = _time.time()
+    if _updates_cache.get("ts", 0) and now - _updates_cache["ts"] < 600:
+        return _updates_cache.get("data", {})
+
+    result = {"last_update": None, "days_since": None, "status": "unknown"}
+
+    if platform.system() == "Windows":
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\Results\Install",
+            )
+            val = winreg.QueryValueEx(key, "LastSuccessTime")[0]
+            from datetime import datetime as _dt
+            last = _dt.strptime(val, "%Y-%m-%d %H:%M:%S")
+            days = (_dt.now() - last).days
+            result = {
+                "last_update": val[:10],
+                "days_since": days,
+                "status": "outdated" if days > 30 else "ok",
+            }
+        except Exception:
+            result = {"status": "unknown"}
+
+    _updates_cache.update({"ts": now, "data": result})
+    return result
 
 
 def _auto_heal():
     """Background loop: health-check every 5 min, auto-fix safe issues."""
     global _last_security_ts, _last_routine_ts
-    _time.sleep(20)  # brief startup delay so caches warm first
+    _time.sleep(20)
 
     while True:
         try:
@@ -91,7 +212,7 @@ def _auto_heal():
 
                 if pct > 85:
                     key = f"temp:{mp}"
-                    if now - _last_clear.get(key, 0) > 900:   # 15-min throttle
+                    if now - _last_clear.get(key, 0) > 900:
                         res = fix_issue("clear_temp")
                         _last_clear[key] = now
                         freed = res.get("freed_mb", 0)
@@ -115,14 +236,33 @@ def _auto_heal():
                         )
                         actions.append("clear_cache")
 
-            # ── RAM: free memory if >90% ──────────────────────────────────────
+            # ── RAM: free memory if >90%, log top hogs ────────────────────────
             ram_pct = health.get("ram_percent", 0)
             if ram_pct > 90:
                 key = "ram"
                 if now - _last_clear.get(key, 0) > 900:
+                    # Identify top hogs before freeing
+                    hog_str = ""
+                    try:
+                        import psutil
+                        top = sorted(
+                            (p for p in psutil.process_iter(["name", "memory_info"])
+                             if p.info.get("memory_info")),
+                            key=lambda p: p.info["memory_info"].rss,
+                            reverse=True,
+                        )[:3]
+                        hog_str = ", ".join(
+                            f"{p.info['name']} ({round(p.info['memory_info'].rss/1048576)}MB)"
+                            for p in top
+                        )
+                    except Exception:
+                        pass
                     fix_issue("free_memory")
                     _last_clear[key] = now
-                    _log_monitor("Auto-fix: free memory", f"RAM at {ram_pct}%", "fixed")
+                    detail = f"RAM at {ram_pct}%"
+                    if hog_str:
+                        detail += f" · Hogs: {hog_str}"
+                    _log_monitor("Auto-fix: free memory", detail, "fixed")
                     actions.append("free_memory")
 
             # ── CPU: log sustained spike ──────────────────────────────────────
@@ -133,6 +273,20 @@ def _auto_heal():
                     f"CPU averaging {cpu_avg}% — check Processes tab",
                     "warning",
                 )
+
+            # ── Uptime: nudge restart after 24h ──────────────────────────────
+            try:
+                import psutil
+                uptime_h = (_time.time() - psutil.boot_time()) / 3600
+                if uptime_h > 48 and now - _last_clear.get("uptime_warn", 0) > 14400:
+                    _last_clear["uptime_warn"] = now
+                    _log_monitor(
+                        "Restart recommended",
+                        f"Laptop has been running for {int(uptime_h)}h — restart improves performance",
+                        "warning",
+                    )
+            except Exception:
+                pass
 
             # ── Security scan every 30 min ────────────────────────────────────
             if now - _last_security_ts > 1800:
@@ -145,7 +299,7 @@ def _auto_heal():
                         for p in sp[:3]:
                             _log_monitor(
                                 "Security alert",
-                                f"Suspicious PID {p.get('pid')}: {p.get('reason','')}",
+                                f"Suspicious PID {p.get('pid')}: {p.get('reason', '')}",
                                 "warning",
                             )
                         for w in hw[:3]:
@@ -155,7 +309,7 @@ def _auto_heal():
                 except Exception:
                     pass
 
-            # ── Routine "all clear" every 30 min (avoid log spam) ─────────────
+            # ── Routine "all clear" every 30 min ─────────────────────────────
             if not actions and cpu_avg <= 90 and ram_pct <= 90:
                 if now - _last_routine_ts > 1800:
                     _last_routine_ts = now
@@ -168,7 +322,7 @@ def _auto_heal():
         except Exception as exc:
             _log_monitor("Monitor error", str(exc)[:120], "error")
 
-        _time.sleep(300)  # run every 5 minutes
+        _time.sleep(300)
 
 
 # ── Agent chat tools ───────────────────────────────────────────────────────────
@@ -289,13 +443,145 @@ def api_all():
     return jsonify(out)
 
 
-# ── Chat route (streaming SSE) ─────────────────────────────────────────────────
 @app.route("/api/monitor-log")
 def api_monitor_log():
     with _monitor_lock:
         return jsonify({"log": list(_monitor_log), "active": True})
 
 
+@app.route("/api/health-check")
+def api_health_check():
+    """Return a 7-point system health checklist (zero tokens)."""
+    with _cache_lock:
+        health   = _cache.get("system", {})
+        security = _cache.get("security", {})
+        network  = _cache.get("network", {})
+
+    uptime_hours = 0
+    try:
+        import psutil
+        uptime_hours = (_time.time() - psutil.boot_time()) / 3600
+    except Exception:
+        pass
+
+    upd = _check_windows_updates()
+
+    ram_pct  = health.get("ram_percent", 0)
+    cpu_pct  = health.get("cpu_usage_avg", 0)
+    disks    = health.get("disks", [])
+    disk_ok  = all(d.get("percent", 0) < 85 for d in disks) if disks else True
+    sec_ok   = not security.get("suspicious_processes") and not [
+        w for w in security.get("warnings", []) if w.get("severity") == "high"
+    ]
+    susp = network.get("suspicious_connections", [])
+
+    checklist = [
+        {
+            "id": "ram", "label": "RAM",
+            "status": "critical" if ram_pct > 90 else "warning" if ram_pct > 75 else "ok",
+            "detail": f"{ram_pct}% used" if ram_pct else "Loading…",
+        },
+        {
+            "id": "cpu", "label": "CPU",
+            "status": "critical" if cpu_pct > 90 else "warning" if cpu_pct > 75 else "ok",
+            "detail": f"{cpu_pct}% avg" if cpu_pct else "Loading…",
+        },
+        {
+            "id": "disk", "label": "Disk",
+            "status": "ok" if disk_ok else "warning",
+            "detail": "All drives healthy" if disk_ok else "Low disk space detected",
+        },
+        {
+            "id": "security", "label": "Security",
+            "status": "ok" if sec_ok else "warning",
+            "detail": security.get("summary", "Scan pending…") if security else "Scan pending…",
+        },
+        {
+            "id": "network", "label": "Network",
+            "status": "critical" if susp else "ok",
+            "detail": (f"{len(susp)} suspicious connection(s)!" if susp
+                      else f"{len(network.get('established_connections', []))} active connections"),
+        },
+        {
+            "id": "uptime", "label": "Uptime",
+            "status": "critical" if uptime_hours > 48 else "warning" if uptime_hours > 24 else "ok",
+            "detail": (f"{int(uptime_hours)}h — restart recommended!" if uptime_hours > 24
+                      else f"{int(uptime_hours)}h since boot"),
+            "uptime_hours": round(uptime_hours, 1),
+        },
+        {
+            "id": "updates", "label": "Updates",
+            "status": "warning" if upd.get("status") == "outdated" else "ok",
+            "detail": (
+                f"Last update {upd['days_since']}d ago — check Windows Update"
+                if upd.get("days_since") and upd["days_since"] > 30
+                else (f"Last updated {upd.get('last_update', 'recently')}"
+                      if upd.get("last_update") else "Status unknown")
+            ),
+        },
+    ]
+
+    return jsonify({
+        "checklist": checklist,
+        "uptime_hours": round(uptime_hours, 1),
+        "ram_pct": ram_pct,
+        "updates": upd,
+    })
+
+
+@app.route("/api/memory-hogs")
+def api_memory_hogs():
+    """Return top 8 processes by RAM with category tags (zero tokens)."""
+    try:
+        import psutil
+        procs = []
+        for p in psutil.process_iter(["pid", "name", "memory_info", "username"]):
+            try:
+                mi = p.info.get("memory_info")
+                if mi:
+                    procs.append({
+                        "pid":    p.info["pid"],
+                        "name":   p.info["name"] or "(no name)",
+                        "user":   p.info["username"] or "",
+                        "mem_mb": round(mi.rss / 1048576),
+                    })
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+
+        procs.sort(key=lambda x: x["mem_mb"], reverse=True)
+        enriched = []
+        for p in procs[:8]:
+            cat = _categorize_proc(p["name"])
+            enriched.append({**p, **cat})
+
+        total_ram = 0
+        try:
+            total_ram = round(psutil.virtual_memory().total / 1073741824, 1)
+        except Exception:
+            pass
+
+        return jsonify({"processes": enriched, "total_ram_gb": total_ram})
+    except Exception as exc:
+        return jsonify({"error": str(exc), "processes": []})
+
+
+@app.route("/api/news-tips")
+def api_news_tips():
+    """Return IT tips (offline) + Hacker News stories (cached 1h, zero tokens)."""
+    stories = []
+    try:
+        stories = _get_hn_stories(limit=8)
+    except Exception:
+        pass
+    tip_index = int(_time.time() / 3600) % len(_IT_TIPS)
+    return jsonify({
+        "tips": _IT_TIPS,
+        "tip_of_hour": _IT_TIPS[tip_index],
+        "stories": stories,
+    })
+
+
+# ── Chat route (streaming SSE) ─────────────────────────────────────────────────
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
     data = request.json or {}
@@ -312,7 +598,6 @@ def api_chat():
         chat_messages = list(messages)
 
         while True:
-            # Stream tokens as they arrive so the user sees words appearing immediately
             with client.messages.stream(
                 model="claude-sonnet-4-6",
                 max_tokens=4096,
@@ -362,7 +647,6 @@ if __name__ == "__main__":
         ("network",   check_network,       {}),
     ]:
         threading.Thread(target=_refresh, args=(_k, _fn), kwargs=_kw, daemon=True).start()
-    # Start self-healing background monitor
     threading.Thread(target=_auto_heal, daemon=True).start()
     print("🤖 Auto-monitor active — checks every 5 minutes and self-heals issues\n")
     app.run(debug=False, host="0.0.0.0", port=5000, threaded=True)
